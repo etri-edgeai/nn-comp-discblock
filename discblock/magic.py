@@ -201,7 +201,7 @@ class EmbeddingMagic(object):
                     assignments = assignments_
 
             print(block_sizes)
-            from bec.layers.mblock import BlockWiseEmbedding, BlockWiseEmbeddingClassifier # More efficient for low-rank approx.
+            from discblock.layers.mblock import BlockWiseEmbedding, BlockWiseEmbeddingClassifier # More efficient for low-rank approx.
             for i, (assignment, block_size, dim, embedding, score) in enumerate(zip(assignments, block_sizes, dims, self.embeddings, scores)):
                 if i == 0 or (i == 1 and self.use_embedding_for_decoder):
                     module = BlockWiseEmbedding(assignment, block_size, dim, padding_idx=padding_idx)
@@ -230,7 +230,7 @@ class EmbeddingMagic(object):
                         module.padding_vec.data = omodule.weight.data[padding_idx]
 
                 if "_" not in self.embedding_type:
-                    from bec.layers.sblock import SVDEmbedding
+                    from discblock.layers.sblock import SVDEmbedding
                     for bidx, (num, rank) in enumerate(block_size):
                         bmodule = SVDEmbedding(num, rank, dim)
                         if rank == dim:
