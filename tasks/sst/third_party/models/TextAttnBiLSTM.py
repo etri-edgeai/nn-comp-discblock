@@ -11,9 +11,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
 import torch.utils.data
-from config import Config
-from datasets import SSTreebankDataset
-from utils import adjust_learning_rate, accuracy, save_checkpoint, AverageMeter, train, validate, testing
+from ..config import Config
+from ..datasets import SSTreebankDataset
+from ..utils import adjust_learning_rate, accuracy, save_checkpoint, AverageMeter, train, validate, testing
 
 class ModelConfig():
     '''

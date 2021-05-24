@@ -11,9 +11,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
 import torch.utils.data
-from config import Config
-from datasets import SSTreebankDataset
-from utils import adjust_learning_rate, accuracy, save_checkpoint, AverageMeter, train, validate, testing
+from ..config import Config
+from ..datasets import SSTreebankDataset
+from ..utils import adjust_learning_rate, accuracy, save_checkpoint, AverageMeter, train, validate, testing
 
 class ModelConfig(object):
     '''
@@ -33,13 +33,13 @@ class ModelConfig(object):
     max_len = opt.max_len
 
     # 训练参数
-    epochs = 120  # epoch数目，除非early stopping, 先开20个epoch不微调,再开多点epoch微调
+    epochs = 30  # epoch数目，除非early stopping, 先开20个epoch不微调,再开多点epoch微调
     batch_size = 32 # batch_size
     workers = 4  # 多处理器加载数据
     lr = 1e-4  # 如果要微调时，学习率要小于1e-3,因为已经是很优化的了，不用这么大的学习率
     weight_decay = 1e-5 # 权重衰减率
     decay_epoch = 20 # 多少个epoch后执行学习率衰减
-    improvement_epoch = 6 # 多少个epoch后执行early stopping
+    improvement_epoch = -1 # 多少个epoch后执行early stopping
     is_Linux = True # 如果是Linux则设置为True,否则设置为else, 用于判断是否多处理器加载
     print_freq = 100  # 每隔print_freq个iteration打印状态
     checkpoint = None  # 模型断点所在位置, 无则None

@@ -177,7 +177,7 @@ def save_checkpoint(model_name, data_name, epoch, epochs_since_improvement, mode
         torch.save(state, 'checkpoints/' + 'BEST_' + filename)
 
 
-def train(train_loader, model, criterion, optimizer, epoch, vocab_size, print_freq, device, grad_clip=None):
+def train(train_loader, model, criterion, optimizer, epoch, vocab_size, print_freq, device, grad_clip=None, config=None):
     '''
     执行一个epoch的训练
     
@@ -209,9 +209,14 @@ def train(train_loader, model, criterion, optimizer, epoch, vocab_size, print_fr
         # 计算整个batch上的平均loss
         loss = criterion(logits, targets)
 
+        sparsity_loss = 0.0
+        for c in model.children():
+            if type(c).__name__ == "DifferentiableEmbedding" or type(c).__name__ == "DifferentiableEmbeddingClassifier":
+                sparsity_loss += c.get_sparsity_loss()
+
         # 反向传播
         optimizer.zero_grad()
-        loss.backward()
+        (loss + sparsity_loss).backward()
 
         # 梯度裁剪
         if grad_clip is not None:
@@ -222,7 +227,23 @@ def train(train_loader, model, criterion, optimizer, epoch, vocab_size, print_fr
         
         # 计算准确率
         accs.update(accuracy(logits, targets))
-        losses.update(loss.item())
+        losses.update((loss+sparsity_loss).item())
+
+        if config is not None and "diff_embedding" in config["embedding"] and "gate_clamping" in config["diff_embedding"]:
+            gate_clamping = config["diff_embedding"]["gate_clamping"]
+            for c in model.modules():
+                if type(c).__name__ == "DifferentiableEmbedding":
+                    #torch.clamp_(c.gates.weight.data, min=1.0, max=c.embedding.weight.size()[1])
+                    if type(c.gates).__name__ == "Embedding":
+                        torch.clamp_(c.gates.weight.data, min=gate_clamping[0], max=gate_clamping[1])
+                    else:
+                        torch.clamp_(c.gates.data, min=gate_clamping[0], max=gate_clamping[1])
+                elif type(c).__name__ == "DifferentiableEmbeddingClassifier":
+                    #torch.clamp_(c.gates.weight.data, min=1.0, max=c.weight.size()[0])
+                    if type(c.gates).__name__ == "Embedding":
+                        torch.clamp_(c.gates.weight.data, min=gate_clamping[0], max=gate_clamping[1])
+                    else:
+                        torch.clamp_(c.gates.data, min=gate_clamping[0], max=gate_clamping[1])
         
         # 打印状态
         if i % print_freq == 0:
@@ -247,7 +268,7 @@ def validate(val_loader, model, criterion, print_freq, device):
     '''
     
     #切换模式
-    model = model.eval()
+    model.eval()
 
     losses = AverageMeter()  # 一个batch的平均loss
     accs = AverageMeter()  # 一个batch的平均正确率
@@ -295,7 +316,7 @@ def testing(test_loader, model, criterion, print_freq, device):
     '''
     
     #切换模式
-    model = model.eval()
+    model.eval()
 
     losses = AverageMeter()  # 一个batch的平均loss
     accs = AverageMeter()  # 一个batch的平均正确率
@@ -318,15 +339,16 @@ def testing(test_loader, model, criterion, print_freq, device):
             # 计算准确率
             accs.update(accuracy(logits, targets))
             losses.update(loss.item())
-            
-            if i % print_freq  == 0:
-                print('Test: [{0}/{1}]\t'
-                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                      'Accuracy {acc.val:.3f} ({acc.avg:.3f})\t'.format(i, len(test_loader),
-                                                                                loss=losses, acc=accs))
+           
+            """
+            print('Test: [{0}/{1}]\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'Accuracy {acc.val:.3f} ({acc.avg:.3f})\t'.format(i, len(test_loader),
+                                                                            loss=losses, acc=accs))
+            """
 
         # 计算整个测试集上的正确率
-        print('LOSS - {loss.avg:.3f}, ACCURACY - {acc.avg:.3f}'.format(loss=losses, acc=accs))
+        print('TEST LOSS - {loss.avg:.3f}, ACCURACY - {acc.avg:.3f}'.format(loss=losses, acc=accs))
 
     return accs.avg
 
