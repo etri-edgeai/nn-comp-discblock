@@ -51,7 +51,7 @@ class TrainManager:
     and early stopping."""
 
     def __init__(self, model: Model, config: dict,
-                 batch_class: Batch = Batch) -> None:
+                 batch_class: Batch = Batch, argconfig=None, eval_func=None) -> None:
         """
         Creates a new TrainManager for a model, specified as in configuration.
 
@@ -59,7 +59,18 @@ class TrainManager:
         :param config: dictionary containing the training configurations
         :param batch_class: batch class to encapsulate the torch class
         """
+
         train_config = config["training"]
+        if argconfig is not None and "diff_embedding" in argconfig["embedding"] and "gate_lr" in argconfig["diff_embedding"]:
+            if argconfig["diff_embedding"]["gate_training_only"]:
+                print("USE GATE LR:", argconfig["diff_embedding"]["gate_lr"])
+                train_config["learning_rate"] = argconfig["diff_embedding"]["gate_lr"]
+        elif argconfig is not None and "lr" in argconfig:
+            train_config["learning_rate"] = argconfig["lr"]
+            print("learning_rate:", train_config["learning_rate"], "->", argconfig["lr"])
+
+        self.config = argconfig
+        self.eval_func = eval_func
         self.batch_class = batch_class
 
         # files for logging and storing
@@ -151,6 +162,7 @@ class TrainManager:
                                      "Valid options: 'word', 'bpe', 'char'.")
         self.shuffle = train_config.get("shuffle", True)
         self.epochs = train_config["epochs"]
+        print(self.epochs)
         self.batch_size = train_config["batch_size"]
         # Placeholder so that we can use the train_iter in other functions.
         self.train_iter = None
@@ -246,7 +258,7 @@ class TrainManager:
             'amp_state':
             amp.state_dict() if self.fp16 else None,
             "train_iter_state":
-            self.train_iter.state_dict()
+            self.train_iter.state_dict() if self.train_iter is not None else None
         }
         torch.save(state, model_path)
         symlink_target = "{}.ckpt".format(self.stats.steps)
@@ -402,6 +414,7 @@ class TrainManager:
             self.n_gpu if self.n_gpu > 1 else self.batch_size,
             self.batch_size * self.batch_multiplier)
 
+        config = self.config
         for epoch_no in range(self.epochs):
             logger.info("EPOCH %d", epoch_no + 1)
 
@@ -444,6 +457,22 @@ class TrainManager:
                             and self.scheduler_step_at == "step":
                         self.scheduler.step()
 
+                    if config is not None and "diff_embedding" in config["embedding"] and "gate_clamping" in config["diff_embedding"]:
+                        gate_clamping = config["diff_embedding"]["gate_clamping"]
+                        for c in self.model.modules():
+                            if type(c).__name__ == "DifferentiableEmbedding":
+                                #torch.clamp_(c.gates.weight.data, min=1.0, max=c.embedding.weight.size()[1])
+                                if type(c.gates).__name__ == "Embedding":
+                                    torch.clamp_(c.gates.weight.data, min=gate_clamping[0], max=gate_clamping[1])
+                                else:
+                                    torch.clamp_(c.gates.data, min=gate_clamping[0], max=gate_clamping[1])
+                            elif type(c).__name__ == "DifferentiableEmbeddingClassifier":
+                                #torch.clamp_(c.gates.weight.data, min=1.0, max=c.weight.size()[0])
+                                if type(c.gates).__name__ == "Embedding":
+                                    torch.clamp_(c.gates.weight.data, min=gate_clamping[0], max=gate_clamping[1])
+                                else:
+                                    torch.clamp_(c.gates.data, min=gate_clamping[0], max=gate_clamping[1])
+
                     # reset gradients
                     self.model.zero_grad()
 
@@ -472,7 +501,11 @@ class TrainManager:
 
                     # validate on the entire dev set
                     if self.stats.steps % self.validation_freq == 0:
-                        valid_duration = self._validate(valid_data, epoch_no)
+                        if config is not None and "use_eval_gates" in config and config["use_eval_gates"] and "diff_embedding" in config["embedding"]:
+                            val_acc, valid_duration = self.eval_func(self.model)
+                            print("********************* eval gates: %f", val_acc)
+                        else:
+                            valid_duration = self._validate(valid_data, epoch_no)
                         total_valid_duration += valid_duration
 
                 if self.stats.stop:
@@ -484,6 +517,7 @@ class TrainManager:
 
             logger.info('Epoch %3d: total training loss %.2f', epoch_no + 1,
                         epoch_loss)
+
         else:
             logger.info('Training ended after %3d epochs.', epoch_no + 1)
         logger.info('Best validation result (greedy) at step %8d: %6.2f %s.',
@@ -520,6 +554,12 @@ class TrainManager:
             raise NotImplementedError("Only normalize by 'batch' or 'tokens' "
                                       "or summation of loss 'none' implemented")
 
+        sparsity_loss = 0.0
+        for c in self.model.children():
+            if type(c).__name__ == "DifferentiableEmbedding" or type(c).__name__ == "DifferentiableEmbeddingClassifier":
+                sparsity_loss += c.get_sparsity_loss()
+        batch_loss = batch_loss + sparsity_loss
+
         norm_batch_loss = batch_loss / normalizer
 
         if self.n_gpu > 1:
@@ -540,7 +580,17 @@ class TrainManager:
 
         return norm_batch_loss.item()
 
-    def _validate(self, valid_data, epoch_no):
+    def _validate(self, valid_data, epoch_no, model=None, ret_score=False):
+        if model is None:
+            model = self.model
+
+        if ret_score:
+            model.eval()
+
+        if ret_score and (not hasattr(model, "loss_function") or model.loss_function is None):
+            model.loss_function = XentLoss(pad_index=model.pad_index,
+            smoothing=self.label_smoothing)
+
         valid_start_time = time.time()
 
         valid_score, valid_loss, valid_ppl, valid_sources, \
@@ -551,7 +601,7 @@ class TrainManager:
                 batch_class=self.batch_class,
                 data=valid_data,
                 eval_metric=self.eval_metric,
-                level=self.level, model=self.model,
+                level=self.level, model=model,
                 use_cuda=self.use_cuda,
                 max_output_length=self.max_output_length,
                 compute_loss=True,
@@ -562,7 +612,7 @@ class TrainManager:
                 sacrebleu=self.sacrebleu,   # sacrebleu options
                 n_gpu=self.n_gpu
             )
-
+        
         self.tb_writer.add_scalar("valid/valid_loss", valid_loss,
                                   self.stats.steps)
         self.tb_writer.add_scalar("valid/valid_score", valid_score,
@@ -618,7 +668,7 @@ class TrainManager:
         self._store_outputs(valid_hypotheses)
 
         # store attention plots for selected valid sentences
-        if valid_attention_scores:
+        if valid_attention_scores and not ret_score:
             store_attention_plots(attentions=valid_attention_scores,
                                   targets=valid_hypotheses_raw,
                                   sources=[s for s in valid_data.src],
@@ -627,8 +677,10 @@ class TrainManager:
                                       self.model_dir, self.stats.steps),
                                   tb_writer=self.tb_writer,
                                   steps=self.stats.steps)
-
-        return valid_duration
+        if ret_score:
+            return valid_score, valid_duration
+        else:
+            return valid_duration
 
     def _add_report(self,
                     valid_score: float,
@@ -653,7 +705,7 @@ class TrainManager:
         if current_lr < self.learning_rate_min:
             self.stats.stop = True
 
-        with open(self.valid_report_file, 'a', encoding="utf-8") as opened_file:
+        with open(self.valid_report_file, 'a') as opened_file:
             opened_file.write(
                 "Steps: {}\tLoss: {:.5f}\tPPL: {:.5f}\t{}: {:.5f}\t"
                 "LR: {:.8f}\t{}\n".format(self.stats.steps, valid_loss,
@@ -717,8 +769,7 @@ class TrainManager:
         """
         current_valid_output_file = "{}/{}.hyps".format(self.model_dir,
                                                         self.stats.steps)
-        with open(current_valid_output_file, 'w', encoding="utf-8") \
-                as opened_file:
+        with open(current_valid_output_file, 'w') as opened_file:
             for hyp in hypotheses:
                 opened_file.write("{}\n".format(hyp))
 
