@@ -177,6 +177,13 @@ class DocReader(object):
             for p in self.network.embedding.parameters():
                 p.requires_grad = False
         parameters = [p for p in self.network.parameters() if p.requires_grad]
+
+        print("training targets:")
+        for name, p in self.network.named_parameters():
+            if p.requires_grad:
+                print(name)
+        print("==================")
+
         if self.args.optimizer == 'sgd':
             self.optimizer = optim.SGD(parameters, self.args.learning_rate,
                                        momentum=self.args.momentum,
@@ -192,7 +199,7 @@ class DocReader(object):
     # Learning
     # --------------------------------------------------------------------------
 
-    def update(self, ex):
+    def update(self, ex, sparsity_loss_func=None):
         """Forward a batch of examples; step the optimizer to update weights."""
         if not self.optimizer:
             raise RuntimeError('No optimizer set.')
@@ -202,10 +209,10 @@ class DocReader(object):
 
         # Transfer to GPU
         if self.use_cuda:
-            inputs = [e if e is None else Variable(e.cuda(async=True))
+            inputs = [e if e is None else Variable(e.cuda(non_blocking=True))
                       for e in ex[:5]]
-            target_s = Variable(ex[5].cuda(async=True))
-            target_e = Variable(ex[6].cuda(async=True))
+            target_s = Variable(ex[5].cuda(non_blocking=True))
+            target_e = Variable(ex[6].cuda(non_blocking=True))
         else:
             inputs = [e if e is None else Variable(e) for e in ex[:5]]
             target_s = Variable(ex[5])
@@ -219,6 +226,9 @@ class DocReader(object):
 
         # Clear gradients and run backward
         self.optimizer.zero_grad()
+
+        if sparsity_loss_func is not None:
+            loss += sparsity_loss_func(self.network)
         loss.backward()
 
         # Clip gradients
@@ -278,7 +288,7 @@ class DocReader(object):
         # Transfer to GPU
         if self.use_cuda:
             inputs = [e if e is None else
-                      Variable(e.cuda(async=True), volatile=True)
+                      Variable(e.cuda(non_blocking=True), volatile=True)
                       for e in ex[:5]]
         else:
             inputs = [e if e is None else Variable(e, volatile=True)
