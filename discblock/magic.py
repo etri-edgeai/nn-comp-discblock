@@ -6,8 +6,8 @@ import collections
 import numpy as np
 import torch
 
-from bec.lowrank import compute_block_svd, compute_svd
-from bec.utils import score_to_block, find_min_rank_clustering, find_min_rank_scoring, make_blocks_from_gates, adjust_rank, count_parameters, walk, parse_score, make_clusters
+from discblock.lowrank import compute_block_svd, compute_svd
+from discblock.utils import score_to_block, find_min_rank_clustering, find_min_rank_scoring, make_blocks_from_gates, adjust_rank, count_parameters, walk, parse_score, make_clusters
 
 def _block_loader(score_input, nblocks, target_sizes, embedding_names, dims, use_clusters=True, include_decoder=False, padding_idx=-1, alpha=0):
     assignments = []
@@ -306,15 +306,15 @@ class EmbeddingMagic(object):
 
         elif "diff_embedding" in self.embedding_type:
             if "svd" in self.embedding_type:
-                from bec.layers.diff_embedding_svd import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding_svd import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             elif "ex" in self.embedding_type:
-                from bec.layers.diff_embedding_ex import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding_ex import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             elif "continuous" in self.embedding_type:
-                from bec.layers.diff_embedding_continuous import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding_continuous import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             elif "non" in self.embedding_type:
-                from bec.layers.diff_embedding_non import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding_non import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             else:
-                from bec.layers.diff_embedding import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             sparsity = self.options["sparsity"]
             reg_weight = self.options["reg_weight"]
             use_gumbel = "gumbel" in self.options and self.options["gumbel"]
@@ -384,7 +384,7 @@ class EmbeddingMagic(object):
 
         elif self.embedding_type == "svd":
             svd_rank = self.options["rank"]
-            from bec.layers.sblock import SVDEmbedding, SVDEmbeddingClassifier
+            from discblock.layers.sblock import SVDEmbedding, SVDEmbeddingClassifier
             for i, (dim, embedding, ntoken) in enumerate(zip(dims, self.embeddings, ntokens)):
                 if i == 0 or (i == 1 and self.use_embedding_for_decoder):
                     module = SVDEmbedding(ntoken, svd_rank, dim)

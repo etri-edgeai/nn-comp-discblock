@@ -20,10 +20,10 @@ import pickle
 
 import copy
 
-from models.loader import load_model
+from tasks.lm.models.loader import load_model
 from tasks.lm import manager
 
-from bec import magic
+from discblock import magic
 from config_parser import get_embedding_options
 
 def evaluate_gates(magical_convert, config, model, dict_, manager, ntokens, val_iters, device):
