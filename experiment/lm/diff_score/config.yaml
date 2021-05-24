@@ -1,0 +1,48 @@
+data: "ptb" # ptb, wikitext2
+model: "LSTM" # LSTM, RANN_TANH, RNN_RELU, LSTM, GRU, Transformer
+embedding: "block" # pruning / block / svd / none(default).
+embeddings:
+  - "encoder"
+  - "decoder"
+nhead: 2
+nlayers: 2
+emsize: 650
+nhid: 650
+lr: 3
+lr_decay: 1.15
+clip: 0.25
+epochs: 30
+batch_size: 20
+bptt: 35
+dropout: 0.65
+tied: False
+seed: 1111 # none
+mode: "train" # train / test / finetune
+weights: "../medium/baseline.p7" # pretrained weights
+save_path: "baseline.p7" # path to save weights
+log_interval: 200
+device: "cuda:3"
+target_ratio: 20.0
+use_eval_gates: True
+use_embedding_for_decoder: False
+diff_embedding:
+  sparsity: 0.95
+  reg_weight: 25.0
+  gate_clamping:
+    - 0.001
+    - 1.0
+  gate_training_only: True
+  gate_lr: 0.5
+  precomputed_gates: "../../../tasks/lm/tf_score_ptb_0.000_0.100.pkl"
+svd_options:
+  rank: 50 # Only for SVDEmbedding
+block_options:
+  score: "../diff/baseline.p7"
+  refinement: True
+  nblocks: 5
+  use_clusters: True
+word2ket_options:
+  rank: 1
+  order: 1
+smallfry_options:
+  nbit: 4
