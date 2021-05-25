@@ -1,7 +1,7 @@
 import torch
 
-from datasets import *
-from config import Config
+from third_party.datasets import *
+from third_party.config import Config
 
 import json
 import argparse

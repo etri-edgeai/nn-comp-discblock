@@ -11,14 +11,14 @@ import argparse
 import yaml
 import json
 
-from tasks.sst import models
-from tasks.sst.config import Config
-from tasks.sst.models.TextCNN import ModelCNN
-from tasks.sst.models.TextAttnBiLSTM import ModelAttnBiLSTM
-from tasks.sst.datasets import *
-from tasks.sst.utils import *
+from tasks.sst.third_party import models
+from tasks.sst.third_party.config import Config
+from tasks.sst.third_party.models.TextCNN import ModelCNN
+from tasks.sst.third_party.models.TextAttnBiLSTM import ModelAttnBiLSTM
+from tasks.sst.third_party.datasets import *
+from tasks.sst.third_party.utils import *
 
-from bec import magic
+from discblock import magic
 from config_parser import get_embedding_options
 
 

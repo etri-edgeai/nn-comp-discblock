@@ -1,0 +1,31 @@
+embedding: "block" # pruning / block / svd / none(default).
+embeddings:
+  - "embedding"
+mode: "test" # train / test / finetune
+weights: "checkpoints/BEST_checkpoint_SST-1_TextCNN.pth" # pretrained weights
+save_path: "baseline.p7" # path to save weights
+device: "cuda:0"
+target_ratio: 19.0
+use_eval_gates: False
+use_embedding_for_decoder: False
+diff_embedding:
+  sparsity: 0.99
+  reg_weight: 20.0
+  gate_clamping:
+    - 0.001
+    - 1.0
+  gate_training_only: False
+  #gate_lr: 0.1
+  #precomputed_gates: "../../tasks/lm/tf_score_ptb.pkl" 
+svd_options:
+  rank: 50 # Only for SVDEmbedding
+block_options:
+  score: "../../../tasks/sst/f_score_sst-1.pkl"
+  refinement: True
+  nblocks: 5
+  use_clusters: True
+word2ket_options:
+  rank: 1
+  order: 1
+smallfry_options:
+  nbit: 4
