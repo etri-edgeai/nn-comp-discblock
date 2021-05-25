@@ -55,7 +55,7 @@ except ImportError as no_apex:
 
 logger = logging.getLogger(__name__)
 
-from bec import magic
+from discblock import magic
 from config_parser import get_embedding_options
 
 

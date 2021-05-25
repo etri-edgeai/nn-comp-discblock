@@ -1,0 +1,25 @@
+mode: "train"
+embedding: "none" # pruning / block / svd / none(default).
+embeddings:
+  - "bert.embeddings.word_embeddings"
+weights: "none" # pretrained weights
+save_path: "baseline.p7" # path to save weights
+target_ratio: 20
+use_eval_gates: True
+use_embedding_for_decoder: False
+diff_embedding:
+  sparsity: 0.99
+  reg_weight: 20.0
+  gate_clamping:
+    - 0.001
+    - 1.0
+  gate_training_only: True
+  gate_lr: 0.1
+  precomputed_gates: "../../tasks/SQuAD/tf_score_squad.pkl" 
+svd_options:
+  rank: 50 # Only for SVDEmbedding
+block_options:
+  score: "../../tasks/SQuAD/tf_score_squad.pkl"
+  refinement: False
+  nblocks: 10
+  use_clusters: True
