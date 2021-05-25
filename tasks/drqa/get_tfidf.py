@@ -123,7 +123,7 @@ def add_train_args(parser):
                          help='Log state after every <display_iter> epochs')
     general.add_argument('--sort-by-len', type='bool', default=True,
                          help='Sort batches by length for speed')
-
+    general.add_argument('--weight_path', type=str, default=None, help='weight_path to the base model', required=True)
 
 def set_defaults(args):
     """Make sure the commandline arguments are initialized properly."""
@@ -239,7 +239,7 @@ def main(args):
     # --------------------------------------------------------------------------
     # MODEL
 
-    weight_path = "../../experiment/drqa/base/models/20200921-0a43f70b.mdl"
+    weight_path = args.weight_path
     saved_params = torch.load(
         weight_path, map_location=lambda storage, loc: storage
     )
