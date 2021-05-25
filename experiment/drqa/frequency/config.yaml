@@ -1,0 +1,33 @@
+embedding: "block" # pruning / block / svd / none(default).
+embeddings:
+  - "embedding"
+seed: 1111 # none
+mode: "train" # train / test / finetune
+weights: "../base/models/best.mdl" # pretrained weights
+save_path: "baseline.p7" # path to save weights
+log_interval: 200
+device: "cuda:2"
+target_ratio: 20.0
+use_eval_gates: False
+use_embedding_for_decoder: False
+diff_embedding:
+  sparsity: 0.99
+  reg_weight: 20.0
+  gate_clamping:
+    - 0.001
+    - 1.0
+  gate_training_only: True
+  gate_lr: 0.1
+  precomputed_gates: "../../tasks/lm/tf_score_ptb.pkl" 
+svd_options:
+  rank: 50 # Only for SVDEmbedding
+block_options:
+  score: "../../../tasks/drqa/f_score_drqa.pkl"
+  refinement: True
+  nblocks: 5
+  use_clusters: True
+word2ket_options:
+  rank: 1
+  order: 1
+smallfry_options:
+  nbit: 4

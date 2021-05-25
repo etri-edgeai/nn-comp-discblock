@@ -31,8 +31,8 @@ from drqa.reader import utils, vector, config, data
 from drqa.reader import DocReader
 from drqa import DATA_DIR as DRQA_DATA
 
-from bec import magic
-from bec.utils import compute_sparsity_loss
+from discblock import magic
+from discblock.utils import compute_sparsity_loss
 from config_parser import get_embedding_options
 
 logging.basicConfig(level=logging.INFO)
