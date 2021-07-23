@@ -12,10 +12,10 @@ from torch.optim.lr_scheduler import StepLR
 import logging
 
 
-from tasks.snli import datasets
-from tasks.snli import models
+from tasks.snli.third_party import datasets
+from tasks.snli.third_party import models
 
-from tasks.snli.utils import *
+from tasks.snli.third_party.utils import *
 from pdb import set_trace
 
 class Train():

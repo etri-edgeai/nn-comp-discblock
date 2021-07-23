@@ -3,12 +3,11 @@ spec = importlib.util.spec_from_file_location("compute_tfidf", "../../tools/comp
 compute_tfidf = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(compute_tfidf)
 
-import datasets
-from utils import *
+from third_party import datasets
+from third_party.utils import *
 
 args = parse_args()
-mode = "frequency"
-#mode = "tfidf"
+mode = args.score_mode
 
 dataset_options = {
                         'batch_size': args.batch_size, 

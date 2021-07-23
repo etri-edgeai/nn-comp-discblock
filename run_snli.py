@@ -19,16 +19,16 @@ from torch.optim.lr_scheduler import StepLR
 import logging
 
 
-from tasks.snli import datasets
-from tasks.snli import models
-from tasks.snli.train import Train
-from tasks.snli.evaluate import Evaluate
+from tasks.snli.third_party import datasets
+from tasks.snli.third_party import models
+from tasks.snli.third_party.train import Train
+from tasks.snli.third_party.evaluate import Evaluate
 
-from tasks.snli.utils import *
+from tasks.snli.third_party.utils import *
 from pdb import set_trace
 
 
-from bec import magic
+from discblock import magic
 from config_parser import get_embedding_options
 
 def evaluate_gates(magical_convert, train_, model, args, config, device):
