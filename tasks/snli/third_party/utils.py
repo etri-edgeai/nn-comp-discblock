@@ -17,6 +17,7 @@ def parse_args():
         parser.add_argument('--combine', type=str, default='cat')
         parser.add_argument('--results_dir', type=str, default='results')
         parser.add_argument('--config', type=str, default=None, help='configuration')
+        parser.add_argument('--score_mode', type=str, default="tfidf", help='only for running get_tfidf.py')
         return check_args(parser.parse_args())
 
 """checking arguments"""

@@ -2,13 +2,13 @@ import torch
 import torch.optim as O
 import torch.nn as nn
 
-from tasks.snli import datasets
-from tasks.snli import models
+from tasks.snli.third_party import datasets
+from tasks.snli.third_party import models
 
 import datetime
 
 from prettytable import PrettyTable
-from tasks.snli.utils import *
+from tasks.snli.third_party.utils import *
 from pdb import set_trace
 
 class Evaluate():
