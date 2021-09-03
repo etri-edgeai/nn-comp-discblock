@@ -39,7 +39,7 @@ def _argmin_reconstruct_error(w, block_svds):
         if v is None:
             err = 0.0
         else:
-            err = w - torch.matmul(torch.matmul(v, v.transpose(0,1)), w)
+            err = w.cpu() - torch.matmul(torch.matmul(v, v.transpose(0,1)), w.cpu())
             err = torch.pow(torch.norm(err, p=2), 2)
         if min_ == -1 or min_ > err:
             min_ = err
@@ -93,6 +93,7 @@ def refine_by_moving(embedding, block_svds, blocks, block_assignment, block_size
             min_idx, min_err = _argmin_reconstruct_error(w, block_svds)
             if block_assignment[i] != min_idx:
                 candidates.append((i, min_idx, min_err))
+        print(len(candidates))
         if len(candidates) < m_min:
             break
         candidates = sorted(candidates, key=lambda x: x[2])[: int(len(candidates) * moving_ratio)]
@@ -117,6 +118,7 @@ def refine_by_moving(embedding, block_svds, blocks, block_assignment, block_size
             is_updated = True
 
         if not is_updated:
+            print("size constraint violated")
             break
        
         block_svds_ = []
@@ -169,7 +171,7 @@ def refine_by_expanding(embedding, blocks, block_sizes, score, target_size, mem_
             block_svds_.append(_compute_single_block_svd(block_.to(embedding.device), keys, rank, score=score, mem_efficient=mem_efficient))
     return block_svds_
 
-def compute_block_svd(embedding, assignment, block_sizes, target_size=None, score=None, refinement=False, tmax=10, m_min=100, moving_ratio=0.1, mem_efficient=False):
+def compute_block_svd(embedding, assignment, block_sizes, target_size=None, score=None, refinement=False, tmax=1000, m_min=1, moving_ratio=0.1, mem_efficient=False):
 
     min_rank = None
     for _, rank in block_sizes:
@@ -200,9 +202,12 @@ def compute_block_svd(embedding, assignment, block_sizes, target_size=None, scor
             else:
                 block_svds[bidx] = _compute_single_block_svd(block_.to(embedding.device), keys, rank, score=score, mem_efficient=mem_efficient)
 
-        if refinement:
-            #block_svds = refine_by_moving(embedding, block_svds, blocks, block_assignment, block_sizes, score, target_size, moving_ratio, tmax, m_min)
+        if refinement == "move":
+            block_svds = refine_by_moving(embedding, block_svds, blocks, block_assignment, block_sizes, score, target_size, moving_ratio, tmax, m_min)
+        elif refinement == "expand" or refinement is True:
             block_svds = refine_by_expanding(embedding, blocks, block_sizes, score, target_size, mem_efficient=mem_efficient)
+        elif refinement is not False:
+            raise NotImplementedError("Check your refinement option!")
 
         local_assignment = {}
         for bidx in blocks:

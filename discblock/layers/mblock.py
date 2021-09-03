@@ -18,6 +18,7 @@ class BlockWiseEmbedding(nn.Module):
         embedding_class=nn.Embedding,
         embedding_initializer=nn.init.normal_,
         padding_idx=-1,
+        needs_restoration=False,
         **embedding_kwargs):
         super(BlockWiseEmbedding, self).__init__()
 
@@ -40,6 +41,7 @@ class BlockWiseEmbedding(nn.Module):
         else:
             self.padding_vec = None
         self.padding_idx = padding_idx
+        self.needs_restoration=needs_restoration
 
     def init_weights(self):
         for b in self.blocks:
@@ -48,9 +50,48 @@ class BlockWiseEmbedding(nn.Module):
             elif self.embedding_initializer is not None:
                 self.embedding_initializer(b.weight.data)
 
+    def _restore(self):
+        blocks_ = []
+        for b in self.blocks:
+            if hasattr(b, "transformer"):
+                B = b.transformer(b.embedding.weight)
+            else:
+                B = b.weight
+            blocks_.append(B)
+
+        vecs = []
+        for idx, (bidx, lidx) in enumerate(zip(self.block_assignment, self.local_assignment)):
+            vecs.append(blocks_[int(bidx)][int(lidx)])
+        self.temp_embedding = torch.stack(vecs)
+
+    def restore(self, no_grad=False):
+        if no_grad:
+            with torch.no_grad():
+                self._restore()
+        else:
+            self._restore()
+
+    def clear(self):
+        self.temp_embedding = None
+
     def forward(self, src):
+
+        # TODO: 100 should be changed later
+        if self.temp_embedding is not None and len(src) > 100:
+            return torch.nn.functional.embedding(src, self.temp_embedding)
+
         nobatch = False
         if len(src.shape) == 1:
+            if self.needs_restoration:
+                src_ = src
+                src = torch.unique(src)
+                inv = {}
+                for i, val in enumerate(src):
+                    inv[int(val)] = i
+                rsrc = []
+                for val in src_:
+                    rsrc.append(inv[int(val)])
+                rsrc = torch.LongTensor(rsrc).cuda()
             src = src.unsqueeze(0)
             nobatch = True
 
@@ -96,8 +137,11 @@ class BlockWiseEmbedding(nn.Module):
             bags.append(torch.stack(vecs))
 
         if nobatch:
-            assert len(bags) == 1
-            return bags[0]
+            if self.needs_restoration:
+                return torch.nn.functional.embedding(rsrc, bags[0])
+            else:
+                assert len(bags) == 1
+                return bags[0]
         else:
             return torch.stack(bags)
 

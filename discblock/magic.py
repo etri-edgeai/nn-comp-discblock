@@ -190,8 +190,8 @@ class EmbeddingMagic(object):
                         target_size=target_size,
                         score=score,
                         refinement=refinement,
-                        tmax=100,
-                        m_min=100,
+                        tmax=1000,
+                        m_min=5,
                         mem_efficient=mem_efficient)
                         block_size = [u.shape for u, vt in block_svd]
                         block_sizes_.append(block_size)
@@ -303,6 +303,26 @@ class EmbeddingMagic(object):
                                                _weight=module.blocks[bidx].weight,
                                                nbit=bit_)
                             module.blocks[bidx] = q
+
+                    elif class_type_str == "tt":
+                        import t3nsor as t3
+                        ranks = self.options["tt_options"]["ranks"]
+                        d = self.options["tt_options"]["d"]
+                        if padding_idx == -1:
+                            padding_idx_ = None
+                        else:
+                            padding_idx_ = padding_idx
+
+                        for bidx, (num, rank) in enumerate(block_size):
+                            layer = t3.TTEmbedding(
+                                voc_size=num,
+                                emb_size=dim,
+                                auto_shapes=True,
+                                auto_shape_mode='mixed',
+                                d=d,
+                                tt_rank=ranks,
+                                padding_idx=padding_idx_)
+                            module.blocks[bidx] = layer
 
         elif "diff_embedding" in self.embedding_type:
             if "svd" in self.embedding_type:
@@ -426,6 +446,30 @@ class EmbeddingMagic(object):
             quantize_embed(model, nbit)
             if setup_weights:
                 pass
+
+        elif "tt" in self.embedding_type:
+            import t3nsor as t3
+            ranks = self.options["ranks"]
+            d = self.options["d"]
+            if padding_idx == -1:
+                padding_idx_ = None
+            else:
+                padding_idx_ = padding_idx
+            for i, (dim, embedding, ntoken) in enumerate(zip(dims, self.embeddings, ntokens)):
+                layer = t3.TTEmbedding(
+                    voc_size=ntoken,
+                    emb_size=dim,
+                    auto_shapes=True,
+                    auto_shape_mode='mixed',
+                    d=d,
+                    tt_rank=ranks,
+                    padding_idx=padding_idx_)
+                embedding = embedding.split(".")
+                holder = walk(model, embedding[:-1])
+                setattr(holder, embedding[-1], layer)
+            if setup_weights:
+                pass
+
         else:
             raise NotImplementedError()
         
