@@ -190,8 +190,8 @@ class EmbeddingMagic(object):
                         target_size=target_size,
                         score=score,
                         refinement=refinement,
-                        tmax=100,
-                        m_min=100,
+                        tmax=1000,
+                        m_min=5,
                         mem_efficient=mem_efficient)
                         block_size = [u.shape for u, vt in block_svd]
                         block_sizes_.append(block_size)
