@@ -32,7 +32,7 @@ from openke.data import TrainDataLoader, TestDataLoader
 
 # dataloader for training
 train_dataloader = TrainDataLoader(
-	in_path = "./tasks/ke/third_party/benchmarks/FB15K237/", 
+	in_path = "../../../tasks/ke/third_party/benchmarks/FB15K237/", 
 	nbatches = 100,
 	threads = 8, 
 	sampling_mode = "normal", 
@@ -42,7 +42,7 @@ train_dataloader = TrainDataLoader(
 	neg_rel = 0)
 
 # dataloader for test
-test_dataloader = TestDataLoader("./tasks/ke/third_party/benchmarks/FB15K237/", "link")
+test_dataloader = TestDataLoader("../../../tasks/ke/third_party/benchmarks/FB15K237/", "link")
 
 def train_(model):
     trainer = Trainer(model = model, data_loader = train_dataloader, train_times = 1000, alpha = 1.0, use_gpu = True)
