@@ -66,4 +66,4 @@ for idx, batch in enumerate(iter(train_iter)):
         batch_.append(line_)
     t_docs.append(batch_)
 
-compute_tfidf.compute(len(src_vocab), docs, "joey", args.mode, pad_token=pad_index, alpha=0.0, beta=0.1, t_ntokens=len(trg_vocab), t_docs=t_docs)
+compute_tfidf.compute(len(src_vocab), docs, "joey", args.mode, pad_token=pad_index, alpha=0.0, beta=0.1, t_ntokens=len(trg_vocab), t_docs=t_docs, base=32)

@@ -1,11 +1,11 @@
 import math
 import pickle
 
-def compute(ntokens, docs, data_name, mode="tfidf", pad_token=None, alpha=0.5, beta=0.25, t_ntokens=None, t_docs=None):
+def compute(ntokens, docs, data_name, mode="tfidf", pad_token=None, alpha=0.5, beta=0.25, base=0, t_ntokens=None, t_docs=None):
 
-    score = _compute(ntokens, docs, mode=mode, pad_token=pad_token, alpha=alpha, beta=beta)
+    score = _compute(ntokens, docs, mode=mode, pad_token=pad_token, alpha=alpha, beta=beta, base=base)
     if t_ntokens is not None:
-        t_score = _compute(t_ntokens, t_docs, mode=mode, pad_token=pad_token, alpha=alpha, beta=beta)
+        t_score = _compute(t_ntokens, t_docs, mode=mode, pad_token=pad_token, alpha=alpha, beta=beta, base=base)
         score = (score, t_score)
 
     if mode == "tfidf":
@@ -13,11 +13,15 @@ def compute(ntokens, docs, data_name, mode="tfidf", pad_token=None, alpha=0.5, b
             pickle.dump(score, f)
 
     elif mode == "frequency":
-        with open("f_score_%s.pkl" % data_name, "wb") as f:
-            pickle.dump(score, f)
+        if base <= 1:
+            with open("f_score_%s.pkl" % data_name, "wb") as f:
+                pickle.dump(score, f)
+        else:
+            with open("f_score_%s_%d.pkl" % (data_name, base), "wb") as f:
+                pickle.dump(score, f)
 
 
-def _compute(ntokens, docs, mode="tfidf", pad_token=None, alpha=0.5, beta=0.25):
+def _compute(ntokens, docs, mode="tfidf", pad_token=None, alpha=0.5, beta=0.25, base=1):
     tf = { t:{} for t in range(ntokens) }
     idf = { t:1 for t in range(ntokens) }
     max_tf = {}
@@ -58,7 +62,7 @@ def _compute(ntokens, docs, mode="tfidf", pad_token=None, alpha=0.5, beta=0.25):
                 if d in tf[t]:
                     sum_ += tf[t][d]
             f[t] = sum_
-        score = [(f[t])+1 for t in range(ntokens)]
+        score = [(f[t])+base for t in range(ntokens)]
     if pad_token is not None and mode == "tfidf":
         score[pad_token] = 1/cnt
     elif pad_token is not None:

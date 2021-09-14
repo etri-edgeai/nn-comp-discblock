@@ -305,7 +305,7 @@ def main(args):
                 doc_.append(int(word))
             batch_.append(doc_)
         docs.append(batch_)
-    compute_tfidf.compute(ntokens, docs, "drqa", args.mode, alpha=0.0, beta=0.1)
+    compute_tfidf.compute(ntokens, docs, "drqa", args.mode, alpha=0.0, beta=0.1, base=32)
  
 def train_drqa(cmdline_args, use_cuda=True):
     # Parse cmdline args and setup environment

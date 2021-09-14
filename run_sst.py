@@ -90,6 +90,7 @@ def load_model(opt, argconfig, magical_convert, weight_path=None, direct_load=Fa
         lr = argconfig["diff_embedding"]["gate_lr"]
     elif "lr_mm" in argconfig:
         lr = argconfig["lr_mm"] * opt.lr
+        print("NEW LR:", lr)
     else:
         lr = opt.lr
 

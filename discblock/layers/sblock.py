@@ -13,11 +13,15 @@ class SVDEmbedding(nn.Module):
         num,
         rank,
         output_dim,
+        padding_idx=None,
         embedding_initializer=nn.init.normal_,
         transformer_initializer=nn.init.xavier_uniform_):
         super(SVDEmbedding, self).__init__()
 
-        self.embedding = nn.Embedding(int(num), int(rank))
+        if padding_idx == -1:
+            padding_idx = None
+
+        self.embedding = nn.Embedding(int(num), int(rank), padding_idx=padding_idx)
         self.transformer = nn.Linear(int(rank), output_dim, bias=False)
 
         self.embedding_initializer = embedding_initializer

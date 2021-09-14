@@ -80,4 +80,4 @@ for i, (sents, labels) in enumerate(train_loader):
     docs.append(batch_)
 
 compute_tfidf.compute(
-    len(word_map), docs, "sst-1", args.mode, pad_token=0, alpha=0.0, beta=0.1)
+    len(word_map), docs, "sst-1", args.mode, pad_token=0, alpha=0.0, beta=0.1, base=8)

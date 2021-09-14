@@ -12,10 +12,10 @@ from torch.optim.lr_scheduler import StepLR
 import logging
 
 
-from tasks.snli.third_party import datasets
-from tasks.snli.third_party import models
+from tasks.snli import datasets
+from tasks.snli import models
 
-from tasks.snli.third_party.utils import *
+from tasks.snli.utils import *
 from pdb import set_trace
 
 class Train():
@@ -70,7 +70,11 @@ class Train():
                     else:
                         lr = self.args.lr
                 else:
-                    lr = self.args.lr
+                    if "lr_mm" in config:
+                        lr = self.args.lr * config["lr_mm"]
+                        print("NEW LR:", lr, self.args.lr)
+                    else:
+                        lr = self.args.lr
 
                 self.opt = O.Adam([p for p in self.model.parameters() if p.requires_grad], lr = lr)
                 self.best_val_acc = None
