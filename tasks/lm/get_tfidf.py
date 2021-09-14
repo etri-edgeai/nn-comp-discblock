@@ -68,4 +68,4 @@ import importlib.util
 spec = importlib.util.spec_from_file_location("compute_tfidf", "../../tools/compute_tfidf.py")
 compute_tfidf = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(compute_tfidf)
-compute_tfidf.compute(ntokens, docs, args.data, args.mode, alpha=0.0, beta=0.1)
+compute_tfidf.compute(ntokens, docs, args.data, args.mode, alpha=0.0, beta=0.1, base=8)

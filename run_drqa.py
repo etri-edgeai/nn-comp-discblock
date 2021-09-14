@@ -463,6 +463,7 @@ def main(args, argconfig):
        
         if "lr_mm" in argconfig:
             args.learning_rate = args.learning_rate * argconfig["lr_mm"]
+            print("NEW LR:", args.learning_rate)
 
         if "diff_embedding" in argconfig["embedding"] and argconfig["diff_embedding"]["gate_training_only"]:
             args.learning_rate = argconfig["diff_embedding"]["gate_lr"]

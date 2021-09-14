@@ -232,7 +232,7 @@ class EmbeddingMagic(object):
                 if "_" not in self.embedding_type:
                     from discblock.layers.sblock import SVDEmbedding
                     for bidx, (num, rank) in enumerate(block_size):
-                        bmodule = SVDEmbedding(num, rank, dim)
+                        bmodule = SVDEmbedding(num, rank, dim, padding_idx=padding_idx)
                         if rank == dim:
                             continue
                         if setup_weights:
@@ -407,7 +407,7 @@ class EmbeddingMagic(object):
             from discblock.layers.sblock import SVDEmbedding, SVDEmbeddingClassifier
             for i, (dim, embedding, ntoken) in enumerate(zip(dims, self.embeddings, ntokens)):
                 if i == 0 or (i == 1 and self.use_embedding_for_decoder):
-                    module = SVDEmbedding(ntoken, svd_rank, dim)
+                    module = SVDEmbedding(ntoken, svd_rank, dim, padding_idx=padding_idx)
                 else:
                     module = SVDEmbeddingClassifier(ntoken, svd_rank, dim)
                 module.to(devices_[i])

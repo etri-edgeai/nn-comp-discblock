@@ -65,9 +65,10 @@ class TrainManager:
             if argconfig["diff_embedding"]["gate_training_only"]:
                 print("USE GATE LR:", argconfig["diff_embedding"]["gate_lr"])
                 train_config["learning_rate"] = argconfig["diff_embedding"]["gate_lr"]
-        elif argconfig is not None and "lr" in argconfig:
-            train_config["learning_rate"] = argconfig["lr"]
-            print("learning_rate:", train_config["learning_rate"], "->", argconfig["lr"])
+        elif argconfig is not None and "lr_mm" in argconfig:
+            old = train_config["learning_rate"]
+            train_config["learning_rate"] = train_config["learning_rate"] * argconfig["lr_mm"]
+            print("NEW learning_rate:", train_config["learning_rate"], old)
 
         self.config = argconfig
         self.eval_func = eval_func
