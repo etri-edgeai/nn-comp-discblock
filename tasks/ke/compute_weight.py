@@ -8,6 +8,8 @@ import pickle
 import numpy as np
 import torch
 
+from openke.data import TrainDataLoader, TestDataLoader
+
 parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 RNN/LSTM/GRU/Transformer Language Model')
 parser.add_argument('--data', type=str, default='wikitext2',
                     help='data corpus')
@@ -23,32 +25,30 @@ args = parser.parse_args()
 
 device = args.device
 
-dataset = "FB15K"
+train_dataloader = TrainDataLoader(
+	in_path = "./third_party/benchmarks/FB15K237/",
+	nbatches = 100,
+	threads = 8,
+	sampling_mode = "normal",
+	bern_flag = 1,
+	filter_flag = 1,
+	neg_ent = 25,
+	neg_rel = 0)
 
-if dataset == "FB15K":
-    train_path = "third_party/benchmarks/FB15K/train2id.txt"
-    entity_path = "third_party/benchmarks/FB15K/entity2id.txt"
-    relation_path = "third_party/benchmarks/FB15K/relation2id.txt"
-
-with open(entity_path, "r") as f:
-    num_entity = int(f.readline())
-
-with open(relation_path, "r") as f:
-    num_relation = int(f.readline())
+num_entity = train_dataloader.get_ent_tot()
 
 e2f = [ 0 for _ in range(num_entity) ]
-r2f = [ 0 for _ in range(num_relation) ]
-with open(train_path, "r") as f:
-    cnt = int(f.readline()) # num of instances
-    for _ in range(cnt):
-        line = f.readline()
-        tokens = tuple([int(x) for x in line.split(" ")])
-        h, t, r = tokens
 
-        e2f[h] += 1
-        e2f[t] += 1
-        r2f[r] += 1
+for data in train_dataloader:
+    for d in data['batch_h']:
+        e2f[d] += 1
+    for d in data['batch_t']:
+        e2f[d] += 1
 
-score = (e2f, r2f)
+m_ = max(e2f)
+
+score = []
+for v in e2f:
+    score.append(float(v+1) / m_)
 with open("score.pkl", "wb") as f:
     pickle.dump(score, f)

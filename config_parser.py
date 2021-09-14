@@ -9,6 +9,8 @@ def get_embedding_options(config):
         options = config["word2ket_options"]
     elif config["embedding"] == "smallfry":
         options = config["smallfry_options"]
+    elif config["embedding"] == "tt":
+        options = config["tt_options"]
     else:
         options = None
     return options
