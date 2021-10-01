@@ -1,4 +1,4 @@
-# Block-wise Word Embedding Compression Revisited: Structure, Clustering, and Weighting
+# Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring
 
 ### Overview
 An Effective Compression Technique for Embedding
