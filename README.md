@@ -1,7 +1,7 @@
 # Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring
 
 ### Overview
-An Effective Compression Technique for Embedding
+This repository contains the official implementation for the papaer, "Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring", Findings of EMNLP 2021.
 
 ### Experiment
 N/A
