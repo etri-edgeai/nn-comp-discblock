@@ -3,19 +3,19 @@
 ### Overview
 This repository contains the official implementation for the papaer, "Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring", Findings of EMNLP 2021.
 
-### Experiment
-N/A
+### Requirements
+* python3, torch, scipy, numpy for discblock. For each task, you need to install required packages.
 
 ### Getting Started
-N/A
 
-#### Requirements
-* Python3, PyTorch, Torchvision, Numpy
+#### Step 1: Train a base model.
 
-#### Training 
-	python ...
-#### Prediction
-    python ...
+#### Step 2: Compute the TF-IDF based Word Importance Score
+
+#### Step 3: Compute Differentiable Word importance Score
+
+#### Step 4: Block-wise Embedding Compression and Fine-tuning
+
 
 ### Acknowledgement
 This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government(MSIT) (No. 2021-0-00907, Development of Adaptive and Lightweight Edge-Collaborative Analysis Technology for Enabling Proactively Immediate Response and Rapid Learning).
