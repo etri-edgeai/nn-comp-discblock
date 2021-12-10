@@ -10,7 +10,7 @@ This repository contains the official implementation for the papaer, "Block-wise
 This repository provides various tasks for experiments.
 Let us show how to apply our method with language modeling.
 
-#### Step 1: Train a base model.
+#### Step 1: Train a base model
 ```
 $ cd experiments/lm/medium
 $ python ../../../run_lm.py --config base.yaml
