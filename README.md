@@ -8,9 +8,13 @@ This repository contains the official implementation for the papaer, "Block-wise
 
 ### Getting Started
 This repository provides various tasks for experiments.
-Let us introduce how to apply our method with language modeling.
+Let us show how to apply our method with language modeling.
 
 #### Step 1: Train a base model.
+```
+$ cd experiments/lm/medium
+$ python ../../../run_lm.py --config base.yaml
+```
 
 #### Step 2: Compute the TF-IDF based Word Importance Score
 
