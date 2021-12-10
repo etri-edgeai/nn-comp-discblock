@@ -2,6 +2,7 @@
 
 ### Overview
 This repository contains the official implementation for the papaer, "Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring", Findings of EMNLP 2021.
+It contains all the implementations for the paper, and we are working on 100% reproduction with yaml-based configuration.
 
 ### Requirements
 * python3, torch, scipy, numpy for discblock. For each task, you need to install required packages.
