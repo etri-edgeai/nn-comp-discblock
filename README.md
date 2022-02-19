@@ -1,8 +1,8 @@
 # Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring
 
 ### Overview
-This repository contains the official implementation for the paper, "Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring", Findings of EMNLP 2021.
-It contains all the implementations for the paper, and we are working on 100% reproduction with yaml-based configuration.
+This repository contains the official implementation for the paper, ["Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring", Findings of EMNLP 2021](https://aclanthology.org/2021.findings-emnlp.372).
+It contains all the implementations for the paper, and we are working on 100% reproduction with yaml-based configuration for convenience.
 
 ### Requirements
 * python3, torch, scipy, numpy for discblock. For each task, you need to install required packages.
@@ -37,6 +37,17 @@ $ cd experiment/lm/diff_score
 $ python ../../../run_lm.py --config config.yaml
 ```
 In the same way, all the hyper-parameters are already set in `config.yaml`.
+
+### Compression Performance
+
+#### Overall Performance
+
+| Datasets     |      Original Score      |  DiscBlock-T |
+|--------------|:------------------------:|-------------:|
+| 	PTB	 	     |						80.8				  | 92.0 				 |
+| WikiText2    |   					93.3				  | 104.3 			 |
+| WikiText103  | 						61.0				  | 72.4 				 |
+
 
 ### Tasks
 
