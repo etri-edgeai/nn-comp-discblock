@@ -6,6 +6,10 @@ It contains all the implementations for the paper, and we are working on 100% re
 
 ### Requirements
 * python3, torch, scipy, numpy for discblock. For each task, you need to install required packages.
+torch == 1.7.1
+torchtext == 0.8.1
+yaml
+scipy
 
 ### Getting Started
 This repository provides various tasks for experiments.
@@ -40,14 +44,13 @@ In the same way, all the hyper-parameters are already set in `config.yaml`.
 
 ### Compression Performance
 
-#### Overall Performance
+#### After Retraining (about 20x compression ratio) 
 
-| Datasets     |      Original Score      |  DiscBlock-T |
-|--------------|:------------------------:|-------------:|
-| 	PTB	 	     |						80.8				  | 92.0 				 |
-| WikiText2    |   					93.3				  | 104.3 			 |
-| WikiText103  | 						61.0				  | 72.4 				 |
-
+| Datasets     |      Original Score      |	SVD						|	DisckBlock-F	|  DiscBlock-T |	DiscBlock-D	|
+|--------------|:------------------------:|--------------:|--------------:|-------------:|-------------:|
+| 	PTB	 	     |						80.8				  |	96.0					|	92.9					| 92.0 				 |		88.7			|
+| WikiText2    |   					93.3				  |	115.0					|	107.8					| 104.3 			 |		102.7			|
+| WikiText103  | 						61.0				  |	83.2					|	82.5					| 72.4 				 |		67.6			|
 
 ### Tasks
 

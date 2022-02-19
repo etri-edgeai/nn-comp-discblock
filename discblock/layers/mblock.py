@@ -43,6 +43,8 @@ class BlockWiseEmbedding(nn.Module):
         self.padding_idx = padding_idx
         self.needs_restoration=needs_restoration
 
+        self.temp_embedding = None # for knowledge embedding
+
     def init_weights(self):
         for b in self.blocks:
             if hasattr(b, "init_weights"):
