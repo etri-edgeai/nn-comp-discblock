@@ -5,11 +5,12 @@ This repository contains the official implementation for the paper, ["Block-wise
 It contains all the implementations for the paper, and we are working on 100% reproduction with yaml-based configuration for convenience.
 
 ### Requirements
-* python3, torch, scipy, numpy for discblock. For each task, you need to install required packages.
-torch == 1.7.1
-torchtext == 0.8.1
-yaml
-scipy
+* For Language Modeling <br />
+torch == 1.7.1 <br />
+torchtext == 0.8.1 <br />
+yaml <br />
+scipy <br />
+numpy <br />
 
 ### Getting Started
 This repository provides various tasks for experiments.
