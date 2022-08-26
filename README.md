@@ -16,6 +16,13 @@ numpy <br />
 This repository provides various tasks for experiments.
 Let us show how to apply our method with language modeling.
 
+#### Step 0: Download the model file
+Download the model file from PyTorch's examples.
+```
+$ cd tasks/lm
+$ bash download.bash
+```
+
 #### Step 1: Train a base model
 ```
 $ cd experiments/lm/medium
