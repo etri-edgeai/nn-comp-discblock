@@ -155,7 +155,7 @@ if config["mode"] == "train" or config["mode"] == "finetune":
                 lr=lr_,
                 clip=config["clip"],
                 log_interval=config["log_interval"],
-                gate_clamping=config["diff_embedding"]["gate_clamping"]\
+                gate_clamping=config["diff_embedding"]["gate_clamping"]
                     if "gate_clamping" in config["diff_embedding"] else None,
                 gate_lr=glr_
             )

@@ -79,7 +79,7 @@ def train(
             if p.grad is None:
                 continue
             if gate_lr is not None and "gates" in name:
-                p.data.add_(-gate_lr, p.grad.data)
+                p.data.add_(-1*gate_lr, p.grad.data)
             else:
                 p.data.add_(-lr, p.grad.data)
 

@@ -193,7 +193,7 @@ class EmbeddingMagic(object):
             for i, module in enumerate(embeddings_):
                 ntokens.append(module.weight.size()[0])
                 dims.append(module.weight.size()[1])
-        except Exception as e:
+        except ValueError as e:
             if self.embedding_type == "smallfry":
                 pass
             else:
@@ -216,7 +216,7 @@ class EmbeddingMagic(object):
                 local_assignment = weight_dict[self.embeddings[0]+".local_assignment"]
                 assignments = []
                 assignments.append([
-                    (idx, block_idx, local_idx) for idx, (block_idx, local_idx)\
+                    (idx, block_idx, local_idx) for idx, (block_idx, local_idx)
                         in enumerate(zip(block_assignment, local_assignment))
                 ])
                 if len(self.embeddings) == 2:

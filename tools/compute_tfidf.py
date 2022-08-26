@@ -3,7 +3,17 @@
 import math
 import pickle
 
-def compute(ntokens, docs, data_name, mode="tfidf", pad_token=None, alpha=0.5, beta=0.25, base=0, t_ntokens=None, t_docs=None):
+def compute(
+    ntokens,
+    docs,
+    data_name,
+    mode="tfidf",
+    pad_token=None,
+    alpha=0.5,
+    beta=0.25,
+    base=0,
+    t_ntokens=None,
+    t_docs=None):
     """ TFIDF score computation """
 
     score = _compute(ntokens, docs, mode=mode, pad_token=pad_token, alpha=alpha, beta=beta, base=base)

@@ -1,3 +1,5 @@
+""" Utilities """
+
 import copy
 import pickle
 
@@ -100,7 +102,7 @@ def find_min_rank_clustering(cluster_info, target_size, nblocks, dim, alpha=0):
         for i in range(nblocks):
             if block_size[i][1] == min_:
                block_size[i][1] = min_ + compute_eps(min_, max_, alpha)
-            block_size[i][1] = min(block_size[i][0], int((block_size[i][1]\
+            block_size[i][1] = min(block_size[i][0], int((block_size[i][1]
                 / (min_ + compute_eps(min_, max_, alpha))) * min_rank))
         nparams = sum([
             num * rank + rank * dim if num != rank else num * dim
@@ -163,7 +165,7 @@ def make_clusters(score, target_size, nblocks, dim, padding_idx=-1, alpha=0):
     for i in range(nblocks):
         if block_sizes[i][1] == min_:
             block_sizes[i][1] = min_ + compute_eps(min_, max_, alpha)
-        block_sizes[i][1] = min(block_sizes[i][0], int((block_sizes[i][1]\
+        block_sizes[i][1] = min(block_sizes[i][0], int((block_sizes[i][1]
             / (min_ + compute_eps(min_, max_, alpha))) * (min_rank)))
 
     return assignment, block_sizes, score
