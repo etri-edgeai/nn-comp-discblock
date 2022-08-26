@@ -1,4 +1,7 @@
 # coding: utf-8
+""" Compute TF/IDF based score
+
+"""
 import argparse
 import time
 import math

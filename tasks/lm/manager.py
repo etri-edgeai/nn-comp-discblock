@@ -1,3 +1,7 @@
+""" Training / Evaluation code for Langunage Modeling
+
+"""
+
 import torch
 import torchtext
 import torch.nn as nn
@@ -8,11 +12,14 @@ def get_data(data_name, batch_size, bptt, device):
     """ Data retrieval Function """
 
     if data_name == "wikitext2":
-        train_iters, val_iters, test_iters = torchtext.datasets.WikiText2.iters(batch_size=batch_size, bptt_len=bptt, device=device)
+        train_iters, val_iters, test_iters = torchtext.datasets.WikiText2.iters(
+            batch_size=batch_size, bptt_len=bptt, device=device)
     elif data_name == "wikitext103":
-        train_iters, val_iters, test_iters = torchtext.datasets.WikiText103.iters(batch_size=batch_size, bptt_len=bptt, device=device)
+        train_iters, val_iters, test_iters = torchtext.datasets.WikiText103.iters(
+            batch_size=batch_size, bptt_len=bptt, device=device)
     elif data_name == "ptb":
-        train_iters, val_iters, test_iters = torchtext.datasets.PennTreebank.iters(batch_size=batch_size, bptt_len=bptt, device=device)
+        train_iters, val_iters, test_iters = torchtext.datasets.PennTreebank.iters(
+            batch_size=batch_size, bptt_len=bptt, device=device)
     else:
         raise NotImplementedError()
     return train_iters, val_iters, test_iters
@@ -25,7 +32,18 @@ def repackage_hidden(h):
     else:
         return tuple(repackage_hidden(v) for v in h)
 
-def train(model_type, model, batch_size, train_iters, val_iters, epoch, lr, clip=0.25, log_interval=200, gate_clamping=None, gate_lr=None):
+def train(
+    model_type,
+    model,
+    batch_size,
+    train_iters,
+    val_iters,
+    epoch,
+    lr,
+    clip=0.25,
+    log_interval=200,
+    gate_clamping=None,
+    gate_lr=None):
     """ Training function """
 
     # Turn on training mode which enables dropout.
@@ -50,7 +68,8 @@ def train(model_type, model, batch_size, train_iters, val_iters, epoch, lr, clip
         loss = criterion(output, targets)
         sparsity_loss = 0.0
         for c in model.children():
-            if type(c).__name__ == "DifferentiableEmbedding" or type(c).__name__ == "DifferentiableEmbeddingClassifier":
+            if type(c).__name__ == "DifferentiableEmbedding"\
+                or type(c).__name__ == "DifferentiableEmbeddingClassifier":
                 sparsity_loss += c.get_sparsity_loss()
         (loss + sparsity_loss).backward()
 

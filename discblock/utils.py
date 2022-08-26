@@ -100,7 +100,8 @@ def find_min_rank_clustering(cluster_info, target_size, nblocks, dim, alpha=0):
         for i in range(nblocks):
             if block_size[i][1] == min_:
                block_size[i][1] = min_ + compute_eps(min_, max_, alpha)
-            block_size[i][1] = min(block_size[i][0], int((block_size[i][1] / (min_ + compute_eps(min_, max_, alpha))) * min_rank))
+            block_size[i][1] = min(block_size[i][0], int((block_size[i][1]\
+                / (min_ + compute_eps(min_, max_, alpha))) * min_rank))
         nparams = sum([
             num * rank + rank * dim if num != rank else num * dim
         for num, rank in block_size])
@@ -162,7 +163,8 @@ def make_clusters(score, target_size, nblocks, dim, padding_idx=-1, alpha=0):
     for i in range(nblocks):
         if block_sizes[i][1] == min_:
             block_sizes[i][1] = min_ + compute_eps(min_, max_, alpha)
-        block_sizes[i][1] = min(block_sizes[i][0], int((block_sizes[i][1] / (min_ + compute_eps(min_, max_, alpha))) * (min_rank)))
+        block_sizes[i][1] = min(block_sizes[i][0], int((block_sizes[i][1]\
+            / (min_ + compute_eps(min_, max_, alpha))) * (min_rank)))
 
     return assignment, block_sizes, score
 
@@ -178,7 +180,8 @@ def make_blocks_from_gates(gates, target_size, nblocks, dim, use_clusters, paddi
     score = list(index.reshape(index.shape[0],))
 
     if use_clusters:
-        assignment, block_sizes, score = make_clusters(score, target_size, nblocks, dim, padding_idx=padding_idx, alpha=alpha)
+        assignment, block_sizes, score = make_clusters(
+            score, target_size, nblocks, dim, padding_idx=padding_idx, alpha=alpha)
     else:
         if padding_idx != -1:
             score = score[:padding_idx] + score[padding_idx+1:]
