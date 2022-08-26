@@ -2,6 +2,7 @@ import math
 import pickle
 
 def compute(ntokens, docs, data_name, mode="tfidf", pad_token=None, alpha=0.5, beta=0.25, base=0, t_ntokens=None, t_docs=None):
+    """ TFIDF score computation """
 
     score = _compute(ntokens, docs, mode=mode, pad_token=pad_token, alpha=alpha, beta=beta, base=base)
     if t_ntokens is not None:
@@ -22,6 +23,8 @@ def compute(ntokens, docs, data_name, mode="tfidf", pad_token=None, alpha=0.5, b
 
 
 def _compute(ntokens, docs, mode="tfidf", pad_token=None, alpha=0.5, beta=0.25, base=1):
+    """ TFIDF score computation imple. """
+
     tf = { t:{} for t in range(ntokens) }
     idf = { t:1 for t in range(ntokens) }
     max_tf = {}

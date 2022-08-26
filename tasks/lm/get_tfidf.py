@@ -27,6 +27,8 @@ unfinished_set = None
 device = args.device
 
 def get_sentences(id_tensor, min_length=4, vocab=None):
+    """ Load sentences """
+
     global unfinished_set
 
     """Converts a sequence of word ids to a sentence"""

@@ -5,6 +5,8 @@ import time
 import math
 
 def get_data(data_name, batch_size, bptt, device):
+    """ Data retrieval Function """
+
     if data_name == "wikitext2":
         train_iters, val_iters, test_iters = torchtext.datasets.WikiText2.iters(batch_size=batch_size, bptt_len=bptt, device=device)
     elif data_name == "wikitext103":
@@ -24,6 +26,8 @@ def repackage_hidden(h):
         return tuple(repackage_hidden(v) for v in h)
 
 def train(model_type, model, batch_size, train_iters, val_iters, epoch, lr, clip=0.25, log_interval=200, gate_clamping=None, gate_lr=None):
+    """ Training function """
+
     # Turn on training mode which enables dropout.
     model.train()
     total_loss = 0.
@@ -87,6 +91,7 @@ def train(model_type, model, batch_size, train_iters, val_iters, epoch, lr, clip
             start_time = time.time()
 
 def evaluate(model_type, model, data_source, ntokens, eval_batch_size):
+    """ Evaluation Function """ 
     # Turn on evaluation mode which disables dropout.
     model.eval()
     total_loss = 0.

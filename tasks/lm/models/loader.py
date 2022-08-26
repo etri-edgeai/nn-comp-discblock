@@ -12,6 +12,7 @@ def load_model(
     dropout=0.5,
     nhead=None,
     device="cuda:0"):
+    """ Model loader """
 
     embedding = nn.Embedding(ntokens, ninp)
     classifier = nn.Linear(nhid, ntokens)

@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class SVDEmbedding(nn.Module):
+    """ SVD-based Embedding """
 
     def __init__(
         self,
@@ -28,14 +29,19 @@ class SVDEmbedding(nn.Module):
         self.transformer_initializer = transformer_initializer
 
     def init_weights(self):
+        """ Initialize Weights """
+
         # init weights
         self.embedding_initializer(self.embedding.weight.data)
         self.transformer_initializer(self.transformer.weight.data)
         
     def forward(self, src):
+        """ Overriden Foward """
+
         return self.transformer(self.embedding(src))
 
 class SVDEmbeddingClassifier(nn.Module):
+    """ SVD-based Classifier Embedding """
 
     def __init__(
         self,
@@ -56,10 +62,12 @@ class SVDEmbeddingClassifier(nn.Module):
         self.bias_initializer = bias_initializer
 
     def init_weights(self):
+        """ Initialize """
         # init weights
         self.embedding_initializer(self.embedding.weight.data)
         self.transformer_initializer(self.transformer.weight.data)
         self.bias_initializer(self.bias.data)
         
     def forward(self, src):
+        """ Overriden Foward """
         return self.embedding(self.transformer(src)) + self.bias
