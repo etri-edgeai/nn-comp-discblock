@@ -9,9 +9,11 @@ from torch.autograd import Variable
 import numpy as np
 
 def discrete_mask(idx_array, gate):
+    """ Discrete masking """
     return (idx_array < gate).to(dtype=torch.float32)
 
 def get_mask(idx_array, gate, L=10e8, grad_shape_func=None):
+    """ Masking function """
     if len(gate.size()) == 3:
         idx_array = idx_array.expand(gate.size()[0], gate.size()[1], -1).to(gate.device)
     elif len(gate.size()) == 2:
@@ -22,6 +24,8 @@ def get_mask(idx_array, gate, L=10e8, grad_shape_func=None):
         return discrete_mask(idx_array, gate) + ((L * gate - torch.floor(L * gate)) / L)
 
 def l2_reg_ortho_32bit(mdl):
+    """ L2 Regularizer """
+
     l2_reg = None
     for name, W in mdl.named_parameters():
         if "gates_" in name:
@@ -86,6 +90,7 @@ class DifferentiableEmbedding(nn.Module):
 
         # Init
     def init_weights(self):
+        """ Initialize """ 
         self._init_func(self.gates.weight.data, a=0.001, b=1.0)
         if self.padding_idx != -1:
             self.gates.weight.data[self.padding_idx] = 1.0
@@ -96,9 +101,11 @@ class DifferentiableEmbedding(nn.Module):
             nn.init.zeros_(b.bias)
 
     def set_sparsity(self, sparsity):
+        """ Set sparsity """
         self.sparsity = sparsity
 
     def get_sparsity(self, no_reduction=False):
+        """ Get sparsity """
         if self.padding_idx != -1:
             floor_gates = torch.cat((self.gates.weight[:self.padding_idx], self.gates.weight[self.padding_idx+1:]))
         else:
@@ -109,15 +116,18 @@ class DifferentiableEmbedding(nn.Module):
             return (1.0-floor_gates)
 
     def get_sparsity_loss(self):
+        """ Get sparsity loss """
         if self.sparsity is None:
             return 0.0
         else:
             return torch.norm(self.sparsity - self.get_sparsity(True), 2).mean() * self.reg_weight #+ 100 * l2_reg_ortho_32bit(self)
 
     def report(self):
+        """ Report """
         print(self.get_sparsity())
     
     def forward(self, input):
+        """ Forward """
         nobatch = False
         if len(input.shape) == 1:
             input = input.unsqueeze(0)
@@ -176,6 +186,7 @@ class DifferentiableEmbeddingClassifier(nn.Module):
 
         # Init
     def init_weights(self):
+        """ Initialize """
         self._init_func(self.gates.weight.data, a=0.001, b=1.0)
         self._init_func(self.weight.data)
         self._init_func(self.bias.data)
@@ -185,9 +196,11 @@ class DifferentiableEmbeddingClassifier(nn.Module):
             nn.init.zeros_(b.bias)
 
     def set_sparsity(self, sparsity):
+        """ Set Sparsity """
         self.sparsity = sparsity
 
     def get_sparsity(self, no_reduction=False):
+        """ Get sparsity """
         floor_gates = self.gates.weight
         if not no_reduction:
             return (1.0-floor_gates).mean()
@@ -195,15 +208,18 @@ class DifferentiableEmbeddingClassifier(nn.Module):
             return (1.0-floor_gates)
 
     def get_sparsity_loss(self):
+        """ Get sparsity loss """
         if self.sparsity is None:
             return 0.0
         else:
             return torch.norm(self.sparsity - self.get_sparsity(True), 2).mean() * self.reg_weight #+ 100 * l2_reg_ortho_32bit(self)
 
     def report(self):
+        """ Report """
         print(self.get_sparsity())
     
     def forward(self, input):
+        """ Forward """
 
         all_ = torch.arange(self.vocab_size).to(input.device)
         gates = self.gates(all_) * self.weight.size()[0]

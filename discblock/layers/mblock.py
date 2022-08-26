@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class BlockWiseEmbedding(nn.Module):
+    """ Block-wise Embedding Layer """
 
     def __init__(
         self,
@@ -46,6 +47,8 @@ class BlockWiseEmbedding(nn.Module):
         self.temp_embedding = None # for knowledge embedding
 
     def init_weights(self):
+        """ Initialize Weights """
+
         for b in self.blocks:
             if hasattr(b, "init_weights"):
                 b.init_weights()
@@ -53,6 +56,8 @@ class BlockWiseEmbedding(nn.Module):
                 self.embedding_initializer(b.weight.data)
 
     def _restore(self):
+        """ Restore function imple. """
+
         blocks_ = []
         for b in self.blocks:
             if hasattr(b, "transformer"):
@@ -67,6 +72,8 @@ class BlockWiseEmbedding(nn.Module):
         self.temp_embedding = torch.stack(vecs)
 
     def restore(self, no_grad=False):
+        """ Restore function """
+
         if no_grad:
             with torch.no_grad():
                 self._restore()
@@ -74,9 +81,11 @@ class BlockWiseEmbedding(nn.Module):
             self._restore()
 
     def clear(self):
+        """ Clear """
         self.temp_embedding = None
 
     def forward(self, src):
+        """ Override forward function """
 
         # TODO: 100 should be changed later
         if self.temp_embedding is not None and len(src) > 100:
@@ -148,6 +157,7 @@ class BlockWiseEmbedding(nn.Module):
             return torch.stack(bags)
 
 class BlockWiseEmbeddingClassifier(nn.Module):
+    """ Classifier Embedding """
 
     def __init__(
         self,
@@ -188,6 +198,8 @@ class BlockWiseEmbeddingClassifier(nn.Module):
         self.bias_initializer = bias_initializer
 
     def init_weights(self):
+        """ Initialization """
+
         # init weights
         for b in self.blocks:
             if hasattr(b, "init_weights"):
@@ -197,6 +209,8 @@ class BlockWiseEmbeddingClassifier(nn.Module):
         self.bias_initializer(self.bias.data)
 
     def forward(self, src):
+        """ Overriden Foward """
+
         ret = None
         # get embedding matrix
         for bidx, block in enumerate(self.blocks):

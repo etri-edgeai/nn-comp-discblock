@@ -5,6 +5,8 @@ import torch
 from scipy.sparse.linalg import svds
 
 def compute_svd(embedding, rank, q=None, mem_efficient=False):
+    """ A function to compute Singular Value Decomposition """
+
     np.random.seed(1234)
     torch.manual_seed(1234)
     embedding = embedding.cpu()
@@ -33,6 +35,8 @@ def compute_svd(embedding, rank, q=None, mem_efficient=False):
     return (u_star, v)
 
 def _argmin_reconstruct_error(w, block_svds):
+    """ Finding the index to make the minimum reconstruction error """
+
     min_ = -1
     min_idx = -1
     w = w.cpu()
@@ -48,6 +52,8 @@ def _argmin_reconstruct_error(w, block_svds):
     return min_idx, min_
 
 def _construct_embedding(block, len_, dtype):
+    """ Block to Torch Tensor  """
+
     block_arr = torch.zeros((len(block), len_), dtype=dtype)
     keys = sorted(list(block.keys()))
     for idx, key in enumerate(keys):
@@ -55,6 +61,8 @@ def _construct_embedding(block, len_, dtype):
     return keys, block_arr
 
 def _compute_single_block_svd(block, keys, rank, score=None, mem_efficient=False):
+    """ Compute Singular Value Decomposition to a single block """
+
     if score is not None:
         q = torch.tensor([score[key] for key in keys]).to(block.device).float()
         u, v = compute_svd(block, rank, q, mem_efficient)
@@ -63,6 +71,8 @@ def _compute_single_block_svd(block, keys, rank, score=None, mem_efficient=False
     return (u, v)
 
 def size(block_svds):
+    """ Compute the size of svd-based blocks """
+
     nparams = 0
     for u, vt in block_svds:
         if vt is not None:
@@ -72,6 +82,8 @@ def size(block_svds):
     return nparams
 
 def size_v2(block_sizes, emsize):
+    """ Compute the size of blocks """
+
     nparams = 0
     for num, rank in block_sizes:
         if rank == emsize:
@@ -80,7 +92,20 @@ def size_v2(block_sizes, emsize):
             nparams += num * rank + rank * emsize
     return nparams
 
-def refine_by_moving(embedding, block_svds, blocks, block_assignment, block_sizes, score, target_size, moving_ratio, tmax, m_min, mem_efficient=False):
+def refine_by_moving(
+    embedding,
+    block_svds,
+    blocks,
+    block_assignment,
+    block_sizes,
+    score,
+    target_size,
+    moving_ratio,
+    tmax,
+    m_min,
+    mem_efficient=False):
+    """ Refine block assignments by moving words """
+
     len_ = embedding.shape[0]
     dim = embedding.shape[1]
 
@@ -130,13 +155,19 @@ def refine_by_moving(embedding, block_svds, blocks, block_assignment, block_size
                 if rank == dim:
                     block_svds_.append((block_, None))
                 else:
-                    block_svds_.append(_compute_single_block_svd(block_.to(embedding.device), keys, rank, score=score, mem_efficient=mem_efficient))
+                    block_svds_.append(
+                        _compute_single_block_svd(
+                            block_.to(embedding.device), keys, rank, score=score, mem_efficient=mem_efficient
+                            )
+                        )
             else:
                 block_svds_.append(block_svds[b])
         block_svds = block_svds_
     return block_svds
 
 def refine_by_expanding(embedding, blocks, block_sizes, score, target_size, mem_efficient=False):
+    """ Refinement by explanding dimension """
+
     dim = embedding.shape[1]
 
     # sort by num
@@ -168,10 +199,25 @@ def refine_by_expanding(embedding, blocks, block_sizes, score, target_size, mem_
         if rank == dim:
             block_svds_.append((block_, None))
         else:
-            block_svds_.append(_compute_single_block_svd(block_.to(embedding.device), keys, rank, score=score, mem_efficient=mem_efficient))
+            block_svds_.append(
+                _compute_single_block_svd(
+                    block_.to(embedding.device), keys, rank, score=score, mem_efficient=mem_efficient
+                    )
+                )
     return block_svds_
 
-def compute_block_svd(embedding, assignment, block_sizes, target_size=None, score=None, refinement=False, tmax=1000, m_min=5, moving_ratio=0.1, mem_efficient=False):
+def compute_block_svd(
+    embedding,
+    assignment,
+    block_sizes,
+    target_size=None,
+    score=None,
+    refinement=False,
+    tmax=1000,
+    m_min=5,
+    moving_ratio=0.1,
+    mem_efficient=False):
+    """ Compute block-level Singular Value Decomposition """
 
     min_rank = None
     for _, rank in block_sizes:
@@ -200,12 +246,24 @@ def compute_block_svd(embedding, assignment, block_sizes, target_size=None, scor
             if rank == dim:
                 block_svds[bidx] = (block_, None)
             else:
-                block_svds[bidx] = _compute_single_block_svd(block_.to(embedding.device), keys, rank, score=score, mem_efficient=mem_efficient)
+                block_svds[bidx] = _compute_single_block_svd(
+                    block_.to(embedding.device), keys, rank, score=score, mem_efficient=mem_efficient)
 
         if refinement == "move":
-            block_svds = refine_by_moving(embedding, block_svds, blocks, block_assignment, block_sizes, score, target_size, moving_ratio, tmax, m_min)
+            block_svds = refine_by_moving(
+                embedding,
+                block_svds,
+                blocks,
+                block_assignment,
+                block_sizes,
+                score,
+                target_size,
+                moving_ratio,
+                tmax,
+                m_min)
         elif refinement == "expand" or refinement is True:
-            block_svds = refine_by_expanding(embedding, blocks, block_sizes, score, target_size, mem_efficient=mem_efficient)
+            block_svds = refine_by_expanding(
+                embedding, blocks, block_sizes, score, target_size, mem_efficient=mem_efficient)
         elif refinement is not False:
             raise NotImplementedError("Wrong refinement!")
 

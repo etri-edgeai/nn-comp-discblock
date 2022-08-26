@@ -43,11 +43,13 @@ class RNNModel(nn.Module):
         self.nlayers = nlayers
 
     def init_weights(self):
+        """ Initialize """
         initrange = 0.1
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, hidden):
+        """ Forward """
         emb = self.drop(self.encoder(input))
         output, hidden = self.rnn(emb, hidden)
         output = self.drop(output)
@@ -56,6 +58,7 @@ class RNNModel(nn.Module):
         return F.log_softmax(decoded, dim=1), hidden
 
     def init_hidden(self, bsz):
+        """ Init """
         weight = next(self.parameters())
         if self.rnn_type == 'LSTM':
             return (weight.new_zeros(self.nlayers, bsz, self.nhid),
@@ -129,16 +132,19 @@ class TransformerModel(nn.Module):
         self.init_weights()
 
     def _generate_square_subsequent_mask(self, sz):
+        """ Subsequent Masking """
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
         mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
         return mask
 
     def init_weights(self):
+        """ Initialize """
         initrange = 0.1
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, src, has_mask=True):
+        """ Forward """
         if has_mask:
             device = src.device
             if self.src_mask is None or self.src_mask.size(0) != len(src):

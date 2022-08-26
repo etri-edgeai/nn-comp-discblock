@@ -6,15 +6,58 @@ import collections
 import numpy as np
 import torch
 
-from discblock.lowrank import compute_block_svd, compute_svd
-from discblock.utils import score_to_block, find_min_rank_clustering, find_min_rank_scoring, make_blocks_from_gates, adjust_rank, count_parameters, walk, parse_score, make_clusters
+from discblock.lowrank import compute_block_svd
+from discblock.lowrank import compute_svd
+from discblock.utils import score_to_block
+from discblock.utils import find_min_rank_clustering
+from discblock.utils import find_min_rank_scoring
+from discblock.utils import make_blocks_from_gates
+from discblock.utils import adjust_rank
+from discblock.utils import count_parameters
+from discblock.utils import walk
+from discblock.utils import parse_score
+from discblock.utils import make_clusters
 
-def _block_loader(score_input, nblocks, target_sizes, embedding_names, dims, use_clusters=True, include_decoder=False, padding_idx=-1, alpha=0):
+def _block_loader(
+    score_input,
+    nblocks,
+    target_sizes,
+    embedding_names,
+    dims,
+    use_clusters=True,
+    include_decoder=False,
+    padding_idx=-1,
+    alpha=0):
+    """ A private function loading block information.
+    
+    Args:
+
+        score_input: str or torch.nn.Module, a file or a module contrainig score information..
+        nblocks: int, the number of blocks.
+        target_sizes: list, the list of the size values of blocks.
+        embedding_names: list of str, the names of embedding layers (input/output)
+        dims: list of int, the dimension values
+        use_clsuters: bool, a flag whether to use non-uniform clustering
+        include_decoder: bool, a flag whether to use embedding for a decoder.
+        padding_idx: int, the index for padding in the vocab.
+        alpha: float, alpha value.
+
+    Returns:
+       
+        assignments: a tuple of assignments, each assignment is a list of tuples (x, y, z). x is a global word index.
+            y is a block id. z is a local index of the word in its block.
+        block_sizes: a tuple of block_sizes, each block_size is a list of tuples (x, y). For the i-th tuple (xi, yi),
+            xi is the number of items in the i-th block. yi is the output (channel) dimension of the i-th block.
+        scores: a tuple of scores, each score is a list of values. The i-th value is the importance score of the i-th
+            word in the vocab.
+
+    """
+
     assignments = []
     block_sizes = []
     scores = []
     if type(score_input) == str:
-        if "p7" in score_input or "pth" in score_input or "mdl" in score_input or "ckpt" in score_input: # Torch model computed by differentiable scoring.
+        if "p7" in score_input or "pth" in score_input or "mdl" in score_input or "ckpt" in score_input:
             with open(score_input, 'rb') as f:
                 model = torch.load(f, map_location="cpu")
                 for i, (target_size, embedding_name, dim) in enumerate(zip(target_sizes, embedding_names, dims)):
@@ -55,7 +98,8 @@ def _block_loader(score_input, nblocks, target_sizes, embedding_names, dims, use
                 scores = parse_score(score_, len(target_sizes)==2)
 
             scores_ = []
-            for i, (target_size, embedding_name, dim, score) in enumerate(zip(target_sizes, embedding_names, dims, scores)):
+            for i, (target_size, embedding_name, dim, score) in enumerate(zip(\
+                target_sizes, embedding_names, dims, scores)):
                 if use_clusters:
                     assignment, block_size, score = make_clusters(score, target_size, nblocks, dim, padding_idx=padding_idx, alpha=alpha)
                 else:
@@ -88,6 +132,7 @@ def _block_loader(score_input, nblocks, target_sizes, embedding_names, dims, use
     return assignments, block_sizes, scores
 
 class EmbeddingMagic(object):
+    """ A class for applying our embedding compression technique for a PyTorch model. """
 
     def __init__(self,
                  mode,
@@ -98,6 +143,22 @@ class EmbeddingMagic(object):
                  use_embedding_for_decoder=False,
                  device="cpu"
                  ):
+        """
+
+        Args:
+            
+            mode: str, it can be one of ["train", "eval"].
+            embeddings: a list of str, it contains the embedding names.
+            target_ratio: float, a target sparsity.
+            embedding_type: str, the name of an embedding compression method.
+            options: dict, a configuration dictionary.
+            use_embedding_for_decoder: bool, a flag whether to use an embedding for the decoder.
+            device: str. a device string like "cpu", "gpu".
+           
+        Returns:
+            A EmbeddingMagic instance.
+
+        """
         self.mode = mode
         if type(embeddings) == str:
             embeddings = (embeddings,)
@@ -109,8 +170,14 @@ class EmbeddingMagic(object):
         self.device = device
 
     def convert_impl(self, model, weight_dict=None, setup_weights=False):
-        """
-        model has the structure of the original model, which menas it is a basemodel.
+        """model is a PyTorch model having embedding layers.
+        This is an inplace algorithm to convert it to have compressed embeddings.
+
+        Args:
+        
+            model: PyTorch model.
+            weight_dict: dict, the dictionary conatining weight parameters of the model.
+            setup_weights: bool, it is False, this function returns an initialized model.
 
         """
         try:
@@ -474,6 +541,7 @@ class EmbeddingMagic(object):
             raise NotImplementedError()
         
     def profile(self, model):
+        """Evaluate the model in terms of # params and # word embedding params. """
         embeddings_ = [walk(model, embedding.split(".")) for embedding in self.embeddings]
         nparams = sum([
             count_parameters(embedding, substr="")
@@ -483,6 +551,8 @@ class EmbeddingMagic(object):
         print("total:", count_parameters(model, substr=""))
    
     def convert(self, model, weight_dict=None, setup_weights=True):
+        """ A function to convert `model` to have compressed embeddings. """
+
         print("---- Before replacement ----")
         self.profile(model)
         self.convert_impl(model, weight_dict, setup_weights)
@@ -492,6 +562,9 @@ class EmbeddingMagic(object):
 
     @torch.no_grad()
     def evaluate_gates(self, dmodel, block_options, load_func, eval_func):
+        """ A method to evaluate gate values of `dmodel`, which is a PyTorch model having word gate values
+        computed in a differentiable way """
+
         assert "diff_embedding" in self.embedding_type 
         block_options["score"] = dmodel
         submagic = EmbeddingMagic(

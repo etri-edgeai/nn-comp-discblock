@@ -27,6 +27,7 @@ from discblock import magic
 from config_parser import get_embedding_options
 
 def evaluate_gates(magical_convert, config, model, dict_, manager, ntokens, val_iters, device):
+    """ Evaluate gates """
 
     def apply_(model, dict_):
         model.load_state_dict(dict_)

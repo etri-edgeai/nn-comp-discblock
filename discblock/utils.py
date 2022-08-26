@@ -8,6 +8,8 @@ from scipy.cluster.vq import kmeans2
 DECODER_REQUIRED = ["lm"]
 
 def adjust_rank(block_sizes, dim):
+    """ A function to change an assigned dimension to be maximal. """
+
     for idx in range(len(block_sizes)):
         num, rank = block_sizes[idx]
         block_sizes[idx] = list(block_sizes[idx])
@@ -15,6 +17,8 @@ def adjust_rank(block_sizes, dim):
             block_sizes[idx][1] = dim
 
 def compute_eps(min_, max_, alpha):
+    """ A function to compute epsilon value """
+
     if alpha == 0:
         return 0
 
@@ -24,6 +28,8 @@ def compute_eps(min_, max_, alpha):
     return alpha * max_ - min_
 
 def score_to_block(score, min_rank, nblock, assignment=None, alpha=0):
+    """ A mapping function from scores to blocks """
+
     score_ = sorted([(i, val) for i, val in enumerate(score)], key=lambda x: x[1], reverse=True)
     ntokens = len(score_)
 
@@ -68,6 +74,8 @@ def score_to_block(score, min_rank, nblock, assignment=None, alpha=0):
     return assignment, block_sizes
 
 def find_min_rank_clustering(cluster_info, target_size, nblocks, dim, alpha=0):
+    """ A function to find the minimum rank for getting target_size. """
+
     min_rank = 1
     block_cnt = [0 for _ in range(len(cluster_info[0]))]
     for idx, bidx in enumerate(cluster_info[1]):
@@ -104,6 +112,8 @@ def find_min_rank_clustering(cluster_info, target_size, nblocks, dim, alpha=0):
     return min_rank - 1
 
 def find_min_rank_scoring(score, target_size, nblocks, dim, assignment=None, alpha=0):
+    """ A function to find the minimum rank for getting target_size """
+
     min_rank = 1
     while True:
         assignment, block_sizes = score_to_block(score, min_rank, nblocks, assignment=assignment, alpha=alpha)
@@ -121,6 +131,8 @@ def find_min_rank_scoring(score, target_size, nblocks, dim, assignment=None, alp
     return min_rank - 1
 
 def make_clusters(score, target_size, nblocks, dim, padding_idx=-1, alpha=0):
+    """ Make word clusters based on score information """
+
     if padding_idx != -1:
         assert type(score) == list
         score = score[:padding_idx] + score[padding_idx+1:]
@@ -155,6 +167,8 @@ def make_clusters(score, target_size, nblocks, dim, padding_idx=-1, alpha=0):
     return assignment, block_sizes, score
 
 def make_blocks_from_gates(gates, target_size, nblocks, dim, use_clusters, padding_idx=-1, alpha=0):
+    """ make word blocks from gate values """
+
     if hasattr(gates, "weight"):
         index = gates.weight.detach().cpu().numpy()
     else:
@@ -173,6 +187,8 @@ def make_blocks_from_gates(gates, target_size, nblocks, dim, use_clusters, paddi
     return assignment, block_sizes, score
 
 def count_parameters(model, substr=""):
+    """ Compute the number of parameters of a PyTorch model """
+
     dict_ = model.state_dict()
     sum_ = 0
     for key, val in dict_.items():
@@ -182,12 +198,16 @@ def count_parameters(model, substr=""):
     #return sum(p.numel() for name, p in model.named_parameters() if substr in name)
 
 def walk(model, path):
+    """ A function to walk the structure of a model """
+
     item = model
     for attr in path:
         item = getattr(item, attr)
     return item
 
 def parse_score(score, include_decoder=False):
+    """ A parsing function for `score` input. """
+
     if type(score) == tuple:
         scores = list(score)
     elif include_decoder:
@@ -197,6 +217,8 @@ def parse_score(score, include_decoder=False):
     return scores
 
 def compute_sparsity_loss(model):
+    """ Compute the sparsity loss """
+
     sparsity_loss = 0.0
     for c in model.modules():
         if type(c).__name__ == "DifferentiableEmbedding" or type(c).__name__ == "DifferentiableEmbeddingClassifier":

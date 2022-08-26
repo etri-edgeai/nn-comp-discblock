@@ -61,19 +61,9 @@ Note that we have excluded codes originated from third-party repositories which 
 Our implementation for language modeling is based on https://github.com/pytorch/examples/tree/master/word_language_model.
 For handling this task, use `run_lm.py` and see `tasks/lm`.
 
-#### Neural Machine Translation
-Our implementation for NMT is based on https://github.com/joeynmt/joeynmt.
-For handling this task, use `run_joeynmt.py` and see `tasks/joeynmt`.
-`tasks/joeynmt/third_party` contains a variation of joeynmt.
-
-#### SQuAD
-Our implementation for SQuAD is based on https://github.com/HazyResearch/smallfry including the implementation for SmallFry.
-For handling this task, use `run_drqa.py` and see `tasks/drqa`.
-`tasks/drqa/third_party` contains a variation of DrQA.
-
-### SNLI, SST, Knowledge Embedding
-The code bases (repositories) for these tasks do not have any license term.
-Thus, we have excluded our implementation for them.
+### SNLI, SST, Knowledge Embedding, Neural Machine Translation, SQuAd
+Due to the internal opensource policy of our company, we do not include implementations for the other tasks in this release.
+Instead, we will include detailed explanation to a way of using DiscBlock for your custom task.
 
 ### Acknowledgement
 This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government(MSIT) (No. 2021-0-00907, Development of Adaptive and Lightweight Edge-Collaborative Analysis Technology for Enabling Proactively Immediate Response and Rapid Learning).
