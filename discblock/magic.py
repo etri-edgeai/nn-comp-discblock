@@ -1,3 +1,7 @@
+""" Applying DiscBlock to a PyTorch model in a magical way
+
+"""
+
 import copy
 import pickle
 import math
@@ -98,10 +102,11 @@ def _block_loader(
                 scores = parse_score(score_, len(target_sizes)==2)
 
             scores_ = []
-            for i, (target_size, embedding_name, dim, score) in enumerate(zip(\
+            for i, (target_size, embedding_name, dim, score) in enumerate(zip(
                 target_sizes, embedding_names, dims, scores)):
                 if use_clusters:
-                    assignment, block_size, score = make_clusters(score, target_size, nblocks, dim, padding_idx=padding_idx, alpha=alpha)
+                    assignment, block_size, score = make_clusters(
+                        score, target_size, nblocks, dim, padding_idx=padding_idx, alpha=alpha)
                 else:
                     if padding_idx != -1:
                         score = score[:padding_idx] + score[padding_idx+1:] 
@@ -211,7 +216,8 @@ class EmbeddingMagic(object):
                 local_assignment = weight_dict[self.embeddings[0]+".local_assignment"]
                 assignments = []
                 assignments.append([
-                    (idx, block_idx, local_idx) for idx, (block_idx, local_idx) in enumerate(zip(block_assignment, local_assignment))
+                    (idx, block_idx, local_idx) for idx, (block_idx, local_idx)\
+                        in enumerate(zip(block_assignment, local_assignment))
                 ])
                 if len(self.embeddings) == 2:
                     assignments.append(weight_dict[self.embeddings[1]+".idx2bidx"])
@@ -247,7 +253,8 @@ class EmbeddingMagic(object):
                     for module, assignment, block_size, score, target_size in zip(
                         embeddings_, assignments, block_sizes, scores, target_sizes):
                         if padding_idx != -1:
-                            oweight = torch.cat((module.weight.data[:padding_idx], module.weight.data[padding_idx+1:]))
+                            oweight = torch.cat((
+                                module.weight.data[:padding_idx], module.weight.data[padding_idx+1:]))
                         else:
                             oweight = module.weight.data
                         assignment, block_svd = compute_block_svd(
@@ -268,8 +275,9 @@ class EmbeddingMagic(object):
                     assignments = assignments_
 
             print(block_sizes)
-            from discblock.layers.mblock import BlockWiseEmbedding, BlockWiseEmbeddingClassifier # More efficient for low-rank approx.
-            for i, (assignment, block_size, dim, embedding, score) in enumerate(zip(assignments, block_sizes, dims, self.embeddings, scores)):
+            from discblock.layers.mblock import BlockWiseEmbedding, BlockWiseEmbeddingClassifier
+            for i, (assignment, block_size, dim, embedding, score) in enumerate(zip(
+                assignments, block_sizes, dims, self.embeddings, scores)):
                 if i == 0 or (i == 1 and self.use_embedding_for_decoder):
                     module = BlockWiseEmbedding(assignment, block_size, dim, padding_idx=padding_idx)
                 else:
@@ -393,15 +401,20 @@ class EmbeddingMagic(object):
 
         elif "diff_embedding" in self.embedding_type:
             if "svd" in self.embedding_type:
-                from discblock.layers.diff_embedding_svd import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding_svd import\
+                    DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             elif "ex" in self.embedding_type:
-                from discblock.layers.diff_embedding_ex import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding_ex import\
+                    DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             elif "continuous" in self.embedding_type:
-                from discblock.layers.diff_embedding_continuous import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding_continuous import\
+                    DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             elif "non" in self.embedding_type:
-                from discblock.layers.diff_embedding_non import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding_non import\
+                    DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             else:
-                from discblock.layers.diff_embedding import DifferentiableEmbedding, DifferentiableEmbeddingClassifier
+                from discblock.layers.diff_embedding import\
+                    DifferentiableEmbedding, DifferentiableEmbeddingClassifier
             sparsity = self.options["sparsity"]
             reg_weight = self.options["reg_weight"]
             use_gumbel = "gumbel" in self.options and self.options["gumbel"]
@@ -414,14 +427,38 @@ class EmbeddingMagic(object):
             for i, (dim, embedding, ntoken) in enumerate(zip(dims, self.embeddings, ntokens)):
                 if i == 0 or (i == 1 and self.use_embedding_for_decoder):
                     if "continuous" in self.embedding_type:
-                        module = DifferentiableEmbedding(ntoken, dim, sparsity=sparsity, reg_weight=reg_weight, device=devices_[i], padding_idx=padding_idx, use_gumbel=use_gumbel, tau=tau, core_dim=core_dim)
+                        module = DifferentiableEmbedding(
+                            ntoken,
+                            dim,
+                            sparsity=sparsity,
+                            reg_weight=reg_weight,
+                            device=devices_[i],
+                            padding_idx=padding_idx,
+                            use_gumbel=use_gumbel,
+                            tau=tau,
+                            core_dim=core_dim)
                     else:
-                        module = DifferentiableEmbedding(ntoken, dim, sparsity=sparsity, reg_weight=reg_weight, device=devices_[i], padding_idx=padding_idx)
+                        module = DifferentiableEmbedding(
+                            ntoken,
+                            dim,
+                            sparsity=sparsity,
+                            reg_weight=reg_weight,
+                            device=devices_[i],
+                            padding_idx=padding_idx)
                 else:
                     if "continuous" in self.embedding_type:
-                        module = DifferentiableEmbeddingClassifier(ntoken, dim, sparsity=sparsity, reg_weight=reg_weight, device=devices_[i], use_gumbel=use_gumbel, tau=tau, core_dim=core_dim)
+                        module = DifferentiableEmbeddingClassifier(
+                            ntoken,
+                            dim,
+                            sparsity=sparsity,
+                            reg_weight=reg_weight,
+                            device=devices_[i],
+                            use_gumbel=use_gumbel,
+                            tau=tau,
+                            core_dim=core_dim)
                     else:
-                        module = DifferentiableEmbeddingClassifier(ntoken, dim, sparsity=sparsity, reg_weight=reg_weight, device=devices_[i])
+                        module = DifferentiableEmbeddingClassifier(
+                            ntoken, dim, sparsity=sparsity, reg_weight=reg_weight, device=devices_[i])
                 module.to(devices_[i])
                 embedding = embedding.split(".")
                 holder = walk(model, embedding[:-1])

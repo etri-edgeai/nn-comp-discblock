@@ -1,4 +1,7 @@
 # coding: utf-8
+""" Running language modeling
+
+"""
 import torch
 torch.manual_seed(1234)
 torch.backends.cudnn.deterministic = True
@@ -152,7 +155,8 @@ if config["mode"] == "train" or config["mode"] == "finetune":
                 lr=lr_,
                 clip=config["clip"],
                 log_interval=config["log_interval"],
-                gate_clamping=config["diff_embedding"]["gate_clamping"] if "gate_clamping" in config["diff_embedding"] else None,
+                gate_clamping=config["diff_embedding"]["gate_clamping"]\
+                    if "gate_clamping" in config["diff_embedding"] else None,
                 gate_lr=glr_
             )
             val_loss = manager.evaluate(
@@ -188,8 +192,18 @@ if config["mode"] == "train" or config["mode"] == "finetune":
             model.rnn.flatten_parameters()
 
 # Run on test data.
-test_loss = manager.evaluate(model_type=config["model"], model=model, data_source=test_iters, ntokens=ntokens, eval_batch_size=config["batch_size"])
-val_loss = manager.evaluate(model_type=config["model"], model=model, data_source=val_iters, ntokens=ntokens, eval_batch_size=config["batch_size"])
+test_loss = manager.evaluate(
+    model_type=config["model"],
+    model=model,
+    data_source=test_iters,
+    ntokens=ntokens,
+    eval_batch_size=config["batch_size"])
+val_loss = manager.evaluate(
+    model_type=config["model"],
+    model=model,
+    data_source=val_iters,
+    ntokens=ntokens,
+    eval_batch_size=config["batch_size"])
 print('=' * 89)
 print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | val ppl {:8.2f}'.format(
     test_loss, math.exp(test_loss), math.exp(val_loss)))

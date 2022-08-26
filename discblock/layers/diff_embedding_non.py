@@ -1,3 +1,7 @@
+""" Differentiable Embedding Simple.
+
+"""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -113,7 +117,7 @@ class DifferentiableEmbedding(nn.Module):
         if self.sparsity is None:
             return 0.0
         else:
-            return torch.norm(self.sparsity - self.get_sparsity(True), 2).mean() * self.reg_weight #+ 100 * l2_reg_ortho_32bit(self)
+            return torch.norm(self.sparsity - self.get_sparsity(True), 2).mean() * self.reg_weight
 
     def report(self):
         """ Report """

@@ -1,3 +1,7 @@
+""" Language Model
+
+"""
+
 import math
 import torch
 import torch.nn as nn
@@ -6,7 +10,8 @@ import torch.nn.functional as F
 class RNNModel(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
-    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, tie_weights=False, encoder=None, decoder=None):
+    def __init__(
+        self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, tie_weights=False, encoder=None, decoder=None):
         super(RNNModel, self).__init__()
         self.ntoken = ntoken
         self.drop = nn.Dropout(dropout)
@@ -132,7 +137,7 @@ class TransformerModel(nn.Module):
         super(TransformerModel, self).__init__()
         try:
             from torch.nn import TransformerEncoder, TransformerEncoderLayer
-        except:
+        except ImportError:
             raise ImportError('TransformerEncoder module does not exist in PyTorch 1.1 or lower.')
         self.model_type = 'Transformer'
         self.src_mask = None

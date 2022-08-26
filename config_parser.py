@@ -1,4 +1,13 @@
+""" 
+    Configuration parser
+
+"""
+
+
+
 def get_embedding_options(config):
+    """Get embedding options """
+
     if "diff_embedding" in config["embedding"]:
         options = config["diff_embedding"]
     elif "block" in config["embedding"]:

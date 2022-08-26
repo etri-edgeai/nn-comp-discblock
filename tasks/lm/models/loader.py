@@ -1,3 +1,6 @@
+""" Model Loader
+
+"""
 
 from torch import nn
 
@@ -18,9 +21,11 @@ def load_model(
     classifier = nn.Linear(nhid, ntokens)
 
     if "LSTM" in model_type or "GRU" in model_type:
-        model = RNNModel(model_type, ntokens, ninp, nhid, nlayers, dropout, False, encoder=embedding, decoder=classifier)
+        model = RNNModel(
+            model_type, ntokens, ninp, nhid, nlayers, dropout, False, encoder=embedding, decoder=classifier)
     elif model_type == "Transformer":
-        model = TransformerModel(ntokens, ninp, nhead, nhid, nlayers, dropout, encoder=embedding, decoder=classifier)
+        model = TransformerModel(
+            ntokens, ninp, nhead, nhid, nlayers, dropout, encoder=embedding, decoder=classifier)
 
     model.init_weights()
 
