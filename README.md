@@ -86,10 +86,7 @@ This work was supported by Institute of Information & communications Technology 
     booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2021",
     month = nov,
     year = "2021",
-    address = "Punta Cana, Dominican Republic",
     publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/2021.findings-emnlp.372",
-    doi = "10.18653/v1/2021.findings-emnlp.372",
     pages = "4379--4388"
 }
 ```
