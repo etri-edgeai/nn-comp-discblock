@@ -50,9 +50,17 @@ $ python ../../../run_lm.py --config config.yaml
 ```
 In the same way, all the hyper-parameters are already set in `config.yaml`.
 
-### Compression Performance
+### Compression Performance (about 20x compression ratio)
 
-#### After Retraining (about 20x compression ratio) 
+#### Before Retraining
+
+| Datasets     |      Original PPL	      |	SVD						|	DisckBlock-F	|  DiscBlock-T |	DiscBlock-D	|
+|--------------|:------------------------:|--------------:|--------------:|-------------:|-------------:|
+| 	PTB	 	     |						80.8				  |	372.1					|	156.6					| 136.4 			 |		125.7			|
+| WikiText2    |   					93.3				  |	1,246.9				|	172.4					| 150.6 			 |		139.3			|
+| WikiText103  | 						61.0				  |	1,882.1				| 122.2					| 92.6 				 |		75.3			|
+
+#### After Retraining
 
 | Datasets     |      Original PPL	      |	SVD						|	DisckBlock-F	|  DiscBlock-T |	DiscBlock-D	|
 |--------------|:------------------------:|--------------:|--------------:|-------------:|-------------:|
