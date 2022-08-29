@@ -54,7 +54,7 @@ In the same way, all the hyper-parameters are already set in `config.yaml`.
 
 #### After Retraining (about 20x compression ratio) 
 
-| Datasets     |      Original Score      |	SVD						|	DisckBlock-F	|  DiscBlock-T |	DiscBlock-D	|
+| Datasets     |      Original PPL	      |	SVD						|	DisckBlock-F	|  DiscBlock-T |	DiscBlock-D	|
 |--------------|:------------------------:|--------------:|--------------:|-------------:|-------------:|
 | 	PTB	 	     |						80.8				  |	96.0					|	92.9					| 92.0 				 |		88.7			|
 | WikiText2    |   					93.3				  |	115.0					|	107.8					| 104.3 			 |		102.7			|
