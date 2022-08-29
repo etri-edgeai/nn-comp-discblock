@@ -1,11 +1,19 @@
 # Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring
 
-### Overview
 This repository contains the official implementation for the paper, ["Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring", Findings of EMNLP 2021](https://aclanthology.org/2021.findings-emnlp.372).
 It contains all the implementations for the paper, and we are working on 100% reproduction with yaml-based configuration for convenience.
 
-This tool converts the embedding layers in your PyTorch model to compressed embedding layers.
-To add your compression method to DiscBlock for benchmark, change `convert_impl` to support it with options defined by `self.options`.
+### Abstract
+Word embedding is essential for neural network models for various natural language processing tasks.
+Since the word embedding usually has a considerable size, in order to deploy a neural network model having it on edge devices, it should be effectively compressed.
+There was a study for proposing a block-wise low-rank approximation method for word embedding, called GroupReduce.
+Even if their structure is effective, the properties behind the concept of the block-wise word embedding compression were not sufficiently explored.
+Motivated by this, we improve GroupReduce in terms of word weighting and structuring.
+For word weighting, we propose a simple yet effective method inspired by the term frequency-inverse document frequency method and 
+a novel differentiable method.
+Based on them, we construct a discriminative word embedding compression algorithm.
+In the experiments, we demonstrate that the proposed algorithm more effectively finds word weights than competitors in most cases.
+In addition, we show that the proposed algorithm can act like a framework through successful cooperation with quantization.
 
 ### Requirements
 * For Language Modeling <br />
