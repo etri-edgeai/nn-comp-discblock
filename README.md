@@ -74,3 +74,22 @@ Instead, we will include detailed explanation to a way of using DiscBlock for yo
 
 ### Acknowledgement
 This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government(MSIT) (No. 2021-0-00907, Development of Adaptive and Lightweight Edge-Collaborative Analysis Technology for Enabling Proactively Immediate Response and Rapid Learning).
+
+### Citation
+
+```BibTeX
+@inproceedings{lee-etal-2021-block-wise,
+    title = "Block-wise Word Embedding Compression Revisited: Better Weighting and Structuring",
+    author = "Lee, Jong-Ryul  and
+      Lee, Yong-Ju  and
+      Moon, Yong-Hyuk",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2021",
+    month = nov,
+    year = "2021",
+    address = "Punta Cana, Dominican Republic",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.findings-emnlp.372",
+    doi = "10.18653/v1/2021.findings-emnlp.372",
+    pages = "4379--4388"
+}
+```
