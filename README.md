@@ -64,11 +64,11 @@ In the same way, all the hyper-parameters are already set in `config.yaml`.
 We provide the implementation for various tasks introduced in the paper here.
 Note that we have excluded codes originated from third-party repositories which do not have any license term.
 
-#### Language Modeling
+##### Language Modeling
 Our implementation for language modeling is based on https://github.com/pytorch/examples/tree/master/word_language_model.
 For handling this task, use `run_lm.py` and see `tasks/lm`.
 
-### SNLI, SST, Knowledge Embedding, Neural Machine Translation, SQuAd
+#### SNLI, SST, Knowledge Embedding, Neural Machine Translation, SQuAd
 Due to the internal opensource policy of our company, we do not include implementations for the other tasks in this release.
 Instead, we will include detailed explanation to a way of using DiscBlock for your custom task.
 
