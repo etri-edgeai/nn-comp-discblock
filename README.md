@@ -15,6 +15,14 @@ Based on them, we construct a discriminative word embedding compression algorith
 In the experiments, we demonstrate that the proposed algorithm more effectively finds word weights than competitors in most cases.
 In addition, we show that the proposed algorithm can act like a framework through successful cooperation with quantization.
 
+<div align="center">
+  <img src="https://github.com/etri-edgeai/nn-comp-discblock/blob/main/asset/aligned_masking.PNG?raw=true" width="850px" />
+</div>
+
+<div align="center">
+  <img src="https://github.com/etri-edgeai/nn-comp-discblock/blob/main/asset/conpensation.PNG?raw=true" width="850px" />
+</div>
+
 ### Requirements
 * For Language Modeling <br />
 torch == 1.7.1 <br />
