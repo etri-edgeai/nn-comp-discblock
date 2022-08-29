@@ -16,7 +16,7 @@ In the experiments, we demonstrate that the proposed algorithm more effectively 
 In addition, we show that the proposed algorithm can act like a framework through successful cooperation with quantization.
 
 <div align="center">
-  <img src="https://github.com/etri-edgeai/nn-comp-discblock/blob/main/asset/aligned_masking.PNG?raw=true" width="850px" />
+  <img src="https://github.com/etri-edgeai/nn-comp-discblock/blob/main/asset/aligned_masking.PNG?raw=true" width="550px" />
 </div>
 
 <div align="center">
